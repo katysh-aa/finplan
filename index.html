@@ -316,6 +316,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const transactionsCollection = db.collection('transactions');
+    // === Документ с целью в Firebase
+    const goalDocRef = db.collection('settings').doc('goal');
 
     // === 2. Глобальные переменные
     let transactions = [];
@@ -324,6 +326,25 @@
     // === 3. Форматирование чисел
     function formatNumber(num) {
       return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    // === Загрузка цели из Firebase
+    function loadGoalFromFirebase() {
+      goalDocRef.onSnapshot(doc => {
+        if (doc.exists) {
+          savingsGoal = doc.data().amount || 500000;
+        } else {
+          // Если документа нет — создаём с дефолтом
+          savingsGoal = 500000;
+          goalDocRef.set({ amount: savingsGoal });
+        }
+        // Обновляем интерфейс
+        const input = document.getElementById('savings-goal');
+        if (input) input.value = savingsGoal;
+        updateHome();
+        // Сохраняем локально на всякий случай
+        localStorage.setItem('savingsGoal', savingsGoal);
+      });
     }
 
     // === 4. Восстановление цели
@@ -340,14 +361,27 @@
     function saveGoal() {
       const input = document.getElementById('savings-goal');
       const value = parseFloat(input.value);
+
       if (isNaN(value) || value < 0) {
         alert('Введите корректную сумму');
         return;
       }
-      savingsGoal = value;
-      localStorage.setItem('savingsGoal', savingsGoal);
-      updateHome();
-      alert(`🎯 Цель обновлена: ${formatNumber(savingsGoal)} ₽`);
+
+      // Сохраняем в Firebase
+      goalDocRef.set({
+        amount: value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+        .then(() => {
+          savingsGoal = value;
+          localStorage.setItem('savingsGoal', savingsGoal); // резерв
+          updateHome();
+          alert(`🎯 Цель обновлена: ${formatNumber(savingsGoal)} ₽`);
+        })
+        .catch(err => {
+          console.error("Ошибка сохранения цели:", err);
+          alert("Не удалось сохранить цель. Проверь интернет.");
+        });
     }
 
     // === 6. Обновление статистики
