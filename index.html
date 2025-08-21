@@ -35,6 +35,11 @@
       border-bottom: 1px solid #eee;
       padding-bottom: 8px;
       margin-top: 30px;
+      text-align: center;
+    }
+
+    h3 {
+      text-align: center;
     }
 
     .btn {
@@ -164,16 +169,16 @@
   <!-- Главная -->
   <section id="home">
 
-        <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
-      <label style="display: block; margin-bottom: 8px;"><strong>Изменить цель:</strong></label>
+    <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
+      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
       <div style="display: flex; gap: 8px; align-items: center;">
         <input type="number" id="savings-goal" value="500000" placeholder="500000"
           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
         <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
       </div>
     </div>
-    
-    <h2>🎯 До цели</h2>
+
+    <h2>🎯 Цель накоплений</h2>
     <div
       style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
       <p style="font-size: 28px; font-weight: bold; color: #34c759;" id="total-savings">0 ₽</p>
@@ -183,14 +188,14 @@
       </div>
     </div>
 
-    <h2 style="margin-top: 30px;">📊 Как идет</h2>
+    <h2 style="margin-top: 30px;">📊 Общий прогресс</h2>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
       <div style="text-align: center; background: #e6f7ff; padding: 14px; border-radius: 10px;">
-        <p style="margin: 0; color: #007AFF;"><strong>Доходы</strong></p>
+        <p style="margin: 0; color: #007AFF;"><strong>Доход</strong></p>
         <p style="margin: 8px 0 0; font-size: 18px; color: #34c759;" id="total-income">0 ₽</p>
       </div>
       <div style="text-align: center; background: #fff3e0; padding: 14px; border-radius: 10px;">
-        <p style="margin: 0; color: #FF9500;"><strong>Расходы</strong></p>
+        <p style="margin: 0; color: #FF9500;"><strong>Расход</strong></p>
         <p style="margin: 8px 0 0; font-size: 18px; color: #ff3b30;" id="total-expense">0 ₽</p>
       </div>
     </div>
