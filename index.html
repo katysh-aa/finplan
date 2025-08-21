@@ -152,17 +152,18 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS для Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
 
-  <h1>💰 ФинПлан</h1>
+  <h1>💰 Копилка</h1>
 
   <!-- Главная -->
   <section id="home">
-    <h2>🎯 Цель накоплений</h2>
     <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
-      <label style="display: block; margin-bottom: 8px;"><strong>Изменить цель:</strong></label>
+      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
       <div style="display: flex; gap: 8px; align-items: center;">
         <input type="number" id="savings-goal" value="500000" placeholder="500000"
           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
@@ -170,8 +171,7 @@
       </div>
     </div>
 
-    <h2 style="margin-top: 30px;">📊 Общий прогресс</h2>
-    
+    <h2>🎯 Накопления</h2>
     <div
       style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
       <p style="font-size: 28px; font-weight: bold; color: #34c759;" id="total-savings">0 ₽</p>
@@ -238,11 +238,13 @@
         Фильтровать</button>
       <button onclick="clearFilter()" class="btn"
         style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px; background: #555;">🗑️ Сбросить</button>
+      <button onclick="exportToExcel()" class="btn" style="font-size: 14px; background: #2e74b5;">📥 Экспорт в
+        Excel</button>
     </div>
     <ul id="all-transactions"></ul>
   </section>
 
-  <!-- Вкладка "Отчет" (объединённая) -->
+  <!-- Вкладка "Отчет" -->
   <section id="analytics" style="display: none;">
     <h2>📈 Отчет</h2>
 
@@ -260,24 +262,7 @@
       <ul id="top-expenses"></ul>
     </div>
 
-    <!-- Блок 3: Прогресс по плану -->
-    <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-      <h3>🎯 Прогресс по плану</h3>
-      <p><strong>План доходов:</strong> <span id="plan-income">0 ₽</span></p>
-      <p><strong>Факт доходов:</strong> <span id="fact-income">0 ₽</span></p>
-      <p><strong>Выполнение:</strong> <span id="progress-income">0%</span></p>
-
-      <p><strong>План расходов:</strong> <span id="plan-expense">0 ₽</span></p>
-      <p><strong>Факт расходов:</strong> <span id="fact-expense">0 ₽</span></p>
-      <p><strong>Выполнение:</strong> <span id="progress-expense">0%</span></p>
-
-      <p><strong>Общий прогресс:</strong> <span id="overall-progress-text">0%</span></p>
-      <div style="height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; margin: 10px 0;">
-        <div id="overall-progress" style="height: 100%; width: 0%; background: #007AFF;"></div>
-      </div>
-    </div>
-
-    <!-- Блок 4: BI -->
+    <!-- Блок 3: Анализ -->
     <h2>📊 Анализ</h2>
     <div style="background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
       <h3>📅 Выберите период</h3>
@@ -448,7 +433,7 @@
         });
         renderRecentList();
         updateHome();
-        updateAnalytics(); // Обновляем отчет
+        updateAnalytics();
       });
     }
 
@@ -600,7 +585,7 @@
       if (sectionId === 'analytics') updateAnalytics();
     }
 
-    // === 15. Аналитика (объединённая)
+    // === 15. Аналитика
     function updateAnalytics() {
       const income = transactions
         .filter(t => t.type === 'income')
@@ -639,26 +624,11 @@
         });
       }
 
-      // Прогресс по плану (пример с жёстким значением)
-      const planIncome = 180000;
-      const planExpense = 100000;
-      const progressIncome = income > 0 ? Math.min(100, (income / planIncome) * 100) : 0;
-      const progressExpense = expense > 0 ? Math.min(100, (expense / planExpense) * 100) : 0;
-      const overallProgress = (progressIncome + (100 - progressExpense)) / 2;
-
-      document.getElementById('plan-income').textContent = formatNumber(planIncome) + ' ₽';
-      document.getElementById('fact-income').textContent = formatNumber(income) + ' ₽';
-      document.getElementById('progress-income').textContent = Math.round(progressIncome) + '%';
-
-      document.getElementById('plan-expense').textContent = formatNumber(planExpense) + ' ₽';
-      document.getElementById('fact-expense').textContent = formatNumber(expense) + ' ₽';
-      document.getElementById('progress-expense').textContent = Math.round(progressExpense) + '%';
-
-      document.getElementById('overall-progress').style.width = Math.min(100, overallProgress) + '%';
-      document.getElementById('overall-progress-text').textContent = Math.round(overallProgress) + '%';
+      // Обновление BI
+      initBI();
     }
 
-    // === 16. BI: Глубокая аналитика
+    // === 16. Анализ: диаграммы
     let expensePieChart = null;
     let savingsWeeklyChart = null;
     let goalProgressChart = null;
@@ -790,7 +760,37 @@
       document.getElementById('goal-progress-text').textContent = `${Math.round(progress)}%`;
     }
 
-    // === 17. Инициализация
+    // === 17. Экспорт в Excel
+    function exportToExcel() {
+      const start = document.getElementById('filter-start').value;
+      const end = document.getElementById('filter-end').value;
+
+      let filtered = [...transactions];
+      if (start) filtered = filtered.filter(t => t.date >= start);
+      if (end) filtered = filtered.filter(t => t.date <= end);
+
+      if (filtered.length === 0) {
+        alert('Нет данных для экспорта');
+        return;
+      }
+
+      const data = filtered.map(tx => ({
+        "Дата": tx.date,
+        "Категория": tx.category,
+        "Сумма": tx.amount,
+        "Тип": tx.type === 'income' ? 'Доход' : 'Расход',
+        "Автор": tx.author
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Операции");
+
+      const period = start && end ? `${start}_до_${end}` : "все";
+      XLSX.writeFile(wb, `финансы_экспорт_${period}.xlsx`);
+    }
+
+    // === 18. Инициализация
     function init() {
       document.getElementById('date').valueAsDate = new Date();
       loadFromFirebase();
