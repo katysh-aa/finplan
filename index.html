@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -19,7 +20,8 @@
       max-width: 600px;
       margin: 0 auto;
       min-height: 100vh;
-      padding-bottom: 80px; /* Место для подвала */
+      padding-bottom: 80px;
+      /* Место для подвала */
       position: relative;
     }
 
@@ -71,7 +73,8 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
-    input, select {
+    input,
+    select {
       padding: 12px;
       border: 1px solid #ddd;
       border-radius: 8px;
@@ -149,7 +152,11 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
   <h1>💰 ФинПлан</h1>
@@ -157,7 +164,8 @@
   <!-- Главная -->
   <section id="home">
     <h2>📊 Общий прогресс</h2>
-    <div style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+    <div
+      style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
       <p><strong>Накоплено</strong></p>
       <p style="font-size: 32px; font-weight: bold; color: #34c759; margin: 10px 0;" id="total-savings">0 ₽</p>
       <div style="height: 8px; background: #ddd; border-radius: 4px; overflow: hidden; margin: 16px 0;">
@@ -178,7 +186,8 @@
     <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
       <label style="display: block; margin-bottom: 8px;"><strong>Цель накоплений:</strong></label>
       <div style="display: flex; gap: 8px; align-items: center;">
-        <input type="number" id="savings-goal" value="500000" placeholder="500000" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <input type="number" id="savings-goal" value="500000" placeholder="500000"
+          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
         <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
       </div>
     </div>
@@ -225,8 +234,10 @@
       <input type="date" id="filter-end" placeholder="По дату" />
     </div>
     <div style="margin: 10px 0; display: flex; gap: 10px; flex-wrap: wrap;">
-      <button onclick="filterByDate()" class="btn" style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px;">🔍 Фильтровать</button>
-      <button onclick="clearFilter()" class="btn" style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px; background: #555;">🗑️ Сбросить</button>
+      <button onclick="filterByDate()" class="btn" style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px;">🔍
+        Фильтровать</button>
+      <button onclick="clearFilter()" class="btn"
+        style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px; background: #555;">🗑️ Сбросить</button>
     </div>
     <ul id="all-transactions"></ul>
   </section>
@@ -286,6 +297,7 @@
     <button onclick="show('add')" data-nav="add">➕<br>Добавить</button>
     <button onclick="show('list')" data-nav="list">📋<br>Все</button>
     <button onclick="show('analytics')" data-nav="analytics">📈<br>Аналитика</button>
+    <button onclick="show('bi')" data-nav="bi">📊<br>BI</button>
   </nav>
 
   <script>
@@ -520,11 +532,13 @@
       });
 
       // Активируем текущую
-      document.querySelector(`.bottom-nav button[onclick="show('${sectionId}')"]`).classList.add('active');
+      const activeBtn = document.querySelector(`.bottom-nav button[onclick="show('${sectionId}')"]`);
+      if (activeBtn) activeBtn.classList.add('active');
 
       // Обновляем данные
       if (sectionId === 'list') renderAllList();
       if (sectionId === 'analytics') updateAnalytics();
+      if (sectionId === 'bi') initBI(); // 🔥 НОВОЕ: инициализация BI
     }
 
     // === 15. Аналитика
@@ -573,7 +587,209 @@
       loadFromFirebase();
     }
 
+    // === BI: Глубокая аналитика ===
+    let expensePieChart = null;
+    let savingsWeeklyChart = null;
+    let goalProgressChart = null;
+
+    // Инициализация BI
+    function initBI() {
+      // Устанавливаем даты по умолчанию: последние 30 дней
+      const today = new Date();
+      const startDate = new Date();
+      startDate.setDate(today.getDate() - 30);
+
+      document.getElementById('bi-start-date').valueAsDate = startDate;
+      document.getElementById('bi-end-date').valueAsDate = today;
+
+      updateBI();
+    }
+
+    // Обновление BI
+    function updateBI() {
+      const start = document.getElementById('bi-start-date').value;
+      const end = document.getElementById('bi-end-date').value;
+
+      if (!start || !end) {
+        alert('Выберите обе даты');
+        return;
+      }
+
+      // Фильтрация транзакций
+      const filtered = transactions.filter(t => t.date >= start && t.date <= end);
+      const expenses = filtered.filter(t => t.type === 'expense');
+      const income = filtered
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const expense = expenses.reduce((sum, t) => sum + t.amount, 0);
+      const savings = income - expense;
+
+      // 1. Кольцевая диаграмма расходов по категориям
+      const expensesByCategory = {};
+      expenses.forEach(t => {
+        expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
+      });
+
+      const categories = Object.keys(expensesByCategory);
+      const values = Object.values(expensesByCategory);
+
+      if (expensePieChart) expensePieChart.destroy();
+      const ctx1 = document.getElementById('expensePieChart').getContext('2d');
+      expensePieChart = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+              '#FF9F40', '#C9CBCF', '#7CFC00', '#FFD700', '#8A2BE2'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      // 2. График роста накоплений по неделям
+      const weeklyData = getWeeklySavings(filtered, start, end);
+      const weekLabels = weeklyData.map(w => `Неделя ${w.week}`);
+      const weekSavings = weeklyData.map(w => w.savings);
+
+      if (savingsWeeklyChart) savingsWeeklyChart.destroy();
+      const ctx2 = document.getElementById('savingsWeeklyChart').getContext('2d');
+      savingsWeeklyChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: weekLabels,
+          datasets: [{
+            label: 'Накопления (₽)',
+            data: weekSavings,
+            borderColor: '#34c759',
+            backgroundColor: 'rgba(52, 199, 89, 0.2)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // 3. Кольцевой прогресс-бар по цели
+      const progress = savingsGoal > 0 ? Math.min(100, (savings / savingsGoal) * 100) : 0;
+      updateGoalProgressChart(progress, savings, savingsGoal);
+    }
+
+    // Вспомогательная: разбивка по неделям
+    function getWeeklySavings(transactions, start, end) {
+      const weeks = [];
+      const current = new Date(start);
+      let weekNum = 1;
+
+      while (current <= new Date(end)) {
+        const weekStart = new Date(current);
+        const weekEnd = new Date(current);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+
+        const weekStr = weekStart.toISOString().slice(0, 10);
+        const weekEndStr = weekEnd.toISOString().slice(0, 10);
+
+        const weekTransactions = transactions.filter(t => t.date >= weekStr && t.date <= weekEndStr);
+        const income = weekTransactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + t.amount, 0);
+        const expense = weekTransactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + t.amount, 0);
+        const savings = income - expense;
+
+        weeks.push({ week: weekNum, savings });
+        weekNum++;
+        current.setDate(current.getDate() + 7);
+      }
+
+      return weeks;
+    }
+
+    // Обновление кольцевого прогресс-бара
+    function updateGoalProgressChart(progress, current, goal) {
+      if (goalProgressChart) goalProgressChart.destroy();
+      const ctx = document.getElementById('goalProgressChart').getContext('2d');
+      goalProgressChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [progress, 100 - progress],
+            backgroundColor: [progress >= 100 ? '#34c759' : '#007AFF', '#eee'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '70%',
+          plugins: {
+            tooltip: { enabled: false },
+            legend: { display: false }
+          }
+        }
+      });
+
+      // Текст в центре
+      document.getElementById('goal-progress-text').textContent = `${Math.round(progress)}%`;
+    }
+
     init();
   </script>
+
+  <!-- Вкладка "BI" -->
+  <section id="bi" style="display: none;">
+    <h2>📊 BI: Глубокая аналитика</h2>
+
+    <!-- Фильтр по датам -->
+    <div style="background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+      <h3>📅 Выберите период</h3>
+      <div style="display: grid; gap: 10px;">
+        <input type="date" id="bi-start-date" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <input type="date" id="bi-end-date" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <button onclick="updateBI()" class="btn" style="font-size: 14px; padding: 10px;">📈 Обновить</button>
+      </div>
+    </div>
+
+    <!-- Кольцевая диаграмма расходов -->
+    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+      <h3>📉 Расходы по категориям</h3>
+      <canvas id="expensePieChart" width="400" height="300"></canvas>
+    </div>
+
+    <!-- График накоплений по неделям -->
+    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+      <h3>📈 Рост накоплений по неделям</h3>
+      <canvas id="savingsWeeklyChart" width="400" height="300"></canvas>
+    </div>
+
+    <!-- Кольцевой прогресс-бар -->
+    <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+      <h3>🎯 Выполнение цели накоплений</h3>
+      <div style="position: relative; width: 200px; height: 200px; margin: 20px auto;">
+        <canvas id="goalProgressChart"></canvas>
+        <div id="goal-progress-text"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; font-weight: bold; color: #333;">
+          0%
+        </div>
+      </div>
+    </div>
+  </section>
+
 </body>
+
 </html>
