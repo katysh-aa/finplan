@@ -158,20 +158,11 @@
 
 <body>
 
-  <h1>💰 Копилка</h1>
+  <h1>💰 ФинПлан</h1>
 
   <!-- Главная -->
   <section id="home">
-    <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
-      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <input type="number" id="savings-goal" value="500000" placeholder="500000"
-          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
-        <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
-      </div>
-    </div>
-
-    <h2>🎯 Накопления</h2>
+    <h2>🎯 Цель накоплений</h2>
     <div
       style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
       <p style="font-size: 28px; font-weight: bold; color: #34c759;" id="total-savings">0 ₽</p>
@@ -181,6 +172,16 @@
       </div>
     </div>
 
+    <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
+      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <input type="number" id="savings-goal" value="500000" placeholder="500000"
+          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 30px;">📊 Общий прогресс</h2>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
       <div style="text-align: center; background: #e6f7ff; padding: 14px; border-radius: 10px;">
         <p style="margin: 0; color: #007AFF;"><strong>Доход</strong></p>
@@ -247,6 +248,36 @@
   <!-- Вкладка "Отчет" -->
   <section id="analytics" style="display: none;">
     <h2>📈 Отчет</h2>
+
+    <!-- Финансовый план на месяц -->
+    <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+      <h3>🎯 Финансовый план на месяц</h3>
+      <p><strong>📅 Текущий месяц:</strong> <span id="current-month">Загрузка...</span></p>
+
+      <div style="margin-top: 10px; padding: 10px; background: #e6f7ff; border-radius: 8px;">
+        <p><strong>💼 Зарплата (план):</strong> 180 000 ₽</p>
+        <p><strong>💼 Зарплата (факт):</strong> <span id="fact-salary">0 ₽</span></p>
+        <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
+          <div id="progress-salary" style="height: 100%; width: 0%; background: #34c759;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px; padding: 10px; background: #fff3e0; border-radius: 8px;">
+        <p><strong>🏠 Жильё (план):</strong> 80 000 ₽</p>
+        <p><strong>🏠 Жильё (факт):</strong> <span id="fact-housing">0 ₽</span></p>
+        <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
+          <div id="progress-housing" style="height: 100%; width: 0%; background: #007AFF;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
+        <p><strong>🛒 Продукты (план):</strong> 20 000 ₽</p>
+        <p><strong>🛒 Продукты (факт):</strong> <span id="fact-food">0 ₽</span></p>
+        <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
+          <div id="progress-food" style="height: 100%; width: 0%; background: #FF9500;"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Блок 1: Итоги -->
     <div style="background: #e6f7ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
@@ -624,11 +655,38 @@
         });
       }
 
-      // Обновление BI
+      updateMonthlyPlan();
       initBI();
     }
 
-    // === 16. Анализ: диаграммы
+    // === 16. Ежемесячный план
+    function updateMonthlyPlan() {
+      const now = new Date();
+      const currentMonth = now.toISOString().slice(0, 7);
+      document.getElementById('current-month').textContent = currentMonth;
+
+      const currentTransactions = transactions.filter(t => t.date.startsWith(currentMonth));
+
+      const salary = currentTransactions
+        .filter(t => t.category === 'Зарплата' && t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const housing = currentTransactions
+        .filter(t => t.category === 'Жильё' && t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const food = currentTransactions
+        .filter(t => t.category === 'Продукты' && t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      document.getElementById('fact-salary').textContent = formatNumber(salary) + ' ₽';
+      document.getElementById('fact-housing').textContent = formatNumber(housing) + ' ₽';
+      document.getElementById('fact-food').textContent = formatNumber(food) + ' ₽';
+
+      document.getElementById('progress-salary').style.width = Math.min(100, (salary / 180000) * 100) + '%';
+      document.getElementById('progress-housing').style.width = Math.min(100, (housing / 80000) * 100) + '%';
+      document.getElementById('progress-food').style.width = Math.min(100, (food / 20000) * 100) + '%';
+    }
+
+    // === 17. Анализ: диаграммы
     let expensePieChart = null;
     let savingsWeeklyChart = null;
     let goalProgressChart = null;
@@ -760,7 +818,7 @@
       document.getElementById('goal-progress-text').textContent = `${Math.round(progress)}%`;
     }
 
-    // === 17. Экспорт в Excel
+    // === 18. Экспорт в Excel
     function exportToExcel() {
       const start = document.getElementById('filter-start').value;
       const end = document.getElementById('filter-end').value;
@@ -790,7 +848,7 @@
       XLSX.writeFile(wb, `финансы_экспорт_${period}.xlsx`);
     }
 
-    // === 18. Инициализация
+    // === 19. Инициализация
     function init() {
       document.getElementById('date').valueAsDate = new Date();
       loadFromFirebase();
