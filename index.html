@@ -170,6 +170,16 @@
 
   <!-- Главная -->
   <section id="home">
+
+        <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
+      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <input type="number" id="savings-goal" value="500000" placeholder="500000"
+          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
+      </div>
+    </div>
+    
     <h2>🎯 Цель накоплений</h2>
     <div
       style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
@@ -177,15 +187,6 @@
       <p style="color: #666; font-size: 14px;" id="progress-text">0% от цели</p>
       <div style="height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; margin: 10px 0;">
         <div id="progress-fill" style="display: block; height: 100%; width: 0%; background: #34c759;"></div>
-      </div>
-    </div>
-
-    <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
-      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <input type="number" id="savings-goal" value="500000" placeholder="500000"
-          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
-        <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
       </div>
     </div>
 
