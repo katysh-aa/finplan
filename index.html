@@ -122,14 +122,6 @@
 
   <h1>💰 ФинПлан</h1>
 
-  <!-- Навигация -->
-  <nav>
-    <button onclick="show('home')">Главная</button>
-    <button onclick="show('add')">Добавить</button>
-    <button onclick="show('list')">Все операции</button>
-    <button onclick="show('analytics')">Аналитика</button>
-  </nav>
-
   <!-- Главная -->
   <section id="home">
     <h2>📊 Общий прогресс</h2>
@@ -672,6 +664,61 @@
 
     // Запуск
     init();
+  </script>
+
+  <!-- Фиксированный нижний подвал с навигацией -->
+  <nav
+    style="position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; border-top: 1px solid #ddd;">
+    <button onclick="show('home')"
+      style="background: none; border: none; color: #007AFF; font-size: 14px; opacity: 0.7; padding: 8px;"
+      data-nav="home">🏠</button>
+    <button onclick="show('add')"
+      style="background: none; border: none; color: #007AFF; font-size: 14px; opacity: 0.7; padding: 8px;"
+      data-nav="add">➕</button>
+    <button onclick="show('list')"
+      style="background: none; border: none; color: #007AFF; font-size: 14px; opacity: 0.7; padding: 8px;"
+      data-nav="list">📋</button>
+    <button onclick="show('analytics')"
+      style="background: none; border: none; color: #007AFF; font-size: 14px; opacity: 0.7; padding: 8px;"
+      data-nav="analytics">📈</button>
+  </nav>
+
+  <script>
+    // === Обновлённая функция show() — с подсветкой активной вкладки
+    function show(sectionId) {
+      // Скрываем все секции
+      document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+
+      // Сбрасываем стиль всех кнопок
+      document.querySelectorAll('nav button[data-nav]').forEach(btn => {
+        btn.style.opacity = '0.7';
+        btn.style.fontWeight = 'normal';
+      });
+
+      // Подсвечиваем активную
+      const activeBtn = document.querySelector(`nav button[data-nav="${sectionId}"]`);
+      if (activeBtn) {
+        activeBtn.style.opacity = '1';
+        activeBtn.style.fontWeight = 'bold';
+      }
+
+      // Обновляем содержимое при открытии
+      if (sectionId === 'list') {
+        renderAllList();
+      }
+      if (sectionId === 'analytics') {
+        updateAnalytics();
+      }
+      if (sectionId === 'savings-history') {
+        updateSavingsHistory();
+      }
+    }
+
+    // Устанавливаем активную вкладку при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+      show('home');
+    });
   </script>
 </body>
 </html>
