@@ -621,7 +621,7 @@ auth.onAuthStateChanged(user => {
         document.getElementById('app').style.display = 'none';
         document.getElementById('auth-screen').style.display = 'block';
     }
-    // === 27. Управление прокруткой и подвалом
+    // === 28. Управление прокруткой и подвалом
 function updatePageLayout() {
     const body = document.body;
     const viewportHeight = window.innerHeight;
@@ -642,4 +642,67 @@ window.addEventListener('resize', updatePageLayout);
 // Если данные динамически меняют высоту (например, добавление транзакций)
 // Вызывай updatePageLayout() после обновления списка
 // Например, в конце renderRecentList(), renderAllList(), updateHome() и т.д.
+    // === 27. Pull-to-refresh
+let startY = 0;
+let currentY = 0;
+let isPulling = false;
+
+// Элементы
+const refreshIndicator = document.getElementById('refresh-indicator');
+const body = document.body;
+
+// Слушаем начало касания
+body.addEventListener('touchstart', (e) => {
+    if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        isPulling = true;
+    }
+}, { passive: false });
+
+// Слушаем движение пальца
+body.addEventListener('touchmove', (e) => {
+    if (!isPulling) return;
+    currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+
+    if (diff > 0) {
+        e.preventDefault(); // Блокируем прокрутку при протягивании вниз
+        if (diff < 100) {
+            // Показываем индикатор постепенно
+            refreshIndicator.style.opacity = diff / 100;
+        } else {
+            refreshIndicator.style.opacity = 1;
+        }
+    }
+}, { passive: false });
+
+// Слушаем окончание касания
+body.addEventListener('touchend', () => {
+    if (!isPulling) return;
+    isPulling = false;
+
+    if (currentY - startY > 80) {
+        // Запускаем обновление
+        refreshIndicator.style.opacity = 1;
+        refreshData();
+    } else {
+        // Просто убираем индикатор
+        refreshIndicator.style.opacity = 0;
+    }
+});
+
+// Функция обновления данных
+function refreshData() {
+    // Показываем индикатор
+    refreshIndicator.style.opacity = 1;
+
+    // Перезагружаем данные из Firebase
+    loadFromFirebase();
+    loadGoalFromFirebase();
+
+    // Через 1.5 сек прячем индикатор (можно уточнить по onSnapshot)
+    setTimeout(() => {
+        refreshIndicator.style.opacity = 0;
+    }, 1500);
+}
 });
