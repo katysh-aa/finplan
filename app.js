@@ -84,11 +84,9 @@ function loadFromFirebase() {
         snapshot.forEach(doc => {
             transactions.push({ id: doc.id, ...doc.data() });
         });
-        // Обновляем все зависимости
         renderRecentList();
         updateHome();
         updateAnalytics();
-        // Если вкладка "История" открыта — обновляем список
         if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
             renderAllList();
         }
@@ -190,7 +188,6 @@ document.getElementById('add-form').addEventListener('submit', e => {
     transactionsCollection.add(newTx)
         .then(() => {
             form.reset();
-            // Если открыта вкладка "История" — обновляем
             if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
                 renderAllList();
             }
@@ -224,7 +221,6 @@ document.getElementById('edit-form').addEventListener('submit', e => {
         .then(() => {
             document.getElementById('edit-section').style.display = 'none';
             form.reset();
-            // Обновляем список "История", если открыт
             if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
                 renderAllList();
             }
@@ -240,7 +236,6 @@ function deleteTransaction(id) {
     if (confirm('Удалить операцию?')) {
         transactionsCollection.doc(id).delete()
             .then(() => {
-                // Обновляем список "История", если открыт
                 if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
                     renderAllList();
                 }
@@ -623,7 +618,16 @@ document.getElementById('login-form').addEventListener('submit', e => {
             document.getElementById('auth-error').textContent = err.message;
         });
 });
-// === 25. Прослушка состояния аутентификации
+// === 25. Авторизация: регистрация
+function register() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    auth.createUserWithEmailAndPassword(email, password)
+        .catch(err => {
+            document.getElementById('auth-error').textContent = err.message;
+        });
+}
+// === 26. Прослушка состояния аутентификации
 auth.onAuthStateChanged(user => {
     if (user) {
         document.getElementById('auth-screen').style.display = 'none';
@@ -637,7 +641,7 @@ auth.onAuthStateChanged(user => {
         document.getElementById('auth-screen').style.display = 'block';
     }
 });
-// === 26. Выход из аккаунта
+// === 27. Выход из аккаунта
 function logout() {
     if (confirm('Вы уверены, что хотите выйти?')) {
         auth.signOut().then(() => {
@@ -648,4 +652,67 @@ function logout() {
             alert('Не удалось выйти. Попробуйте снова.');
         });
     }
+}
+// === 28. Pull-to-refresh
+let startY = 0;
+let currentY = 0;
+let isPulling = false;
+
+// Элементы
+const refreshIndicator = document.getElementById('refresh-indicator');
+const body = document.body;
+
+// Слушаем начало касания
+body.addEventListener('touchstart', (e) => {
+    if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        isPulling = true;
+    }
+}, { passive: false });
+
+// Слушаем движение пальца
+body.addEventListener('touchmove', (e) => {
+    if (!isPulling) return;
+    currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+
+    if (diff > 0) {
+        e.preventDefault(); // Блокируем прокрутку при протягивании вниз
+        if (diff < 100) {
+            // Показываем индикатор постепенно
+            refreshIndicator.style.opacity = diff / 100;
+        } else {
+            refreshIndicator.style.opacity = 1;
+        }
+    }
+}, { passive: false });
+
+// Слушаем окончание касания
+body.addEventListener('touchend', () => {
+    if (!isPulling) return;
+    isPulling = false;
+
+    if (currentY - startY > 80) {
+        // Запускаем обновление
+        refreshIndicator.style.opacity = 1;
+        refreshData();
+    } else {
+        // Просто убираем индикатор
+        refreshIndicator.style.opacity = 0;
+    }
+});
+
+// Функция обновления данных
+function refreshData() {
+    // Показываем индикатор
+    refreshIndicator.style.opacity = 1;
+
+    // Перезагружаем данные из Firebase
+    loadFromFirebase();
+    loadGoalFromFirebase();
+
+    // Через 1.5 сек прячем индикатор (можно уточнить по onSnapshot)
+    setTimeout(() => {
+        refreshIndicator.style.opacity = 0;
+    }, 1500);
 }
