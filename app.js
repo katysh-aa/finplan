@@ -621,4 +621,25 @@ auth.onAuthStateChanged(user => {
         document.getElementById('app').style.display = 'none';
         document.getElementById('auth-screen').style.display = 'block';
     }
+    // === 27. Управление прокруткой и подвалом
+function updatePageLayout() {
+    const body = document.body;
+    const viewportHeight = window.innerHeight;
+    const contentHeight = body.scrollHeight;
+
+    // Если контент меньше экрана — убираем прокрутку
+    if (contentHeight <= viewportHeight) {
+        body.style.overflow = 'hidden';
+    } else {
+        body.style.overflow = 'auto';
+    }
+}
+
+// Вызываем при загрузке и при изменении контента
+window.addEventListener('load', updatePageLayout);
+window.addEventListener('resize', updatePageLayout);
+
+// Если данные динамически меняют высоту (например, добавление транзакций)
+// Вызывай updatePageLayout() после обновления списка
+// Например, в конце renderRecentList(), renderAllList(), updateHome() и т.д.
 });
