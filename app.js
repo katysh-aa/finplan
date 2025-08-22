@@ -623,16 +623,7 @@ document.getElementById('login-form').addEventListener('submit', e => {
             document.getElementById('auth-error').textContent = err.message;
         });
 });
-// === 25. Авторизация: регистрация
-function register() {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    auth.createUserWithEmailAndPassword(email, password)
-        .catch(err => {
-            document.getElementById('auth-error').textContent = err.message;
-        });
-}
-// === 26. Прослушка состояния аутентификации
+// === 25. Прослушка состояния аутентификации
 auth.onAuthStateChanged(user => {
     if (user) {
         document.getElementById('auth-screen').style.display = 'none';
