@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>🏦Семейный бюджет</title>
+    <title>💰 Семейный бюджет</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
         body {
             font-family: -apple-system, sans-serif;
             padding: 20px;
@@ -23,24 +21,20 @@
             padding-bottom: 80px;
             position: relative;
         }
-
         h1 {
             text-align: center;
             color: #007AFF;
             margin-bottom: 20px;
         }
-
         h2 {
             border-bottom: 1px solid #eee;
             padding-bottom: 8px;
             margin-top: 30px;
             text-align: center;
         }
-
         h3 {
             text-align: center;
         }
-
         .btn {
             background: #007AFF;
             color: white;
@@ -53,21 +47,17 @@
             width: 100%;
             margin: 10px 0;
         }
-
         .btn.small {
             width: auto;
             padding: 8px 12px;
             font-size: 14px;
         }
-
         .btn.danger {
             background: #ff3b30;
         }
-
         .btn.success {
             background: #34c759;
         }
-
         form {
             display: grid;
             gap: 12px;
@@ -76,7 +66,6 @@
             border-radius: 12px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
-
         input,
         select {
             padding: 12px;
@@ -84,12 +73,10 @@
             border-radius: 8px;
             font-size: 16px;
         }
-
         ul {
             list-style: none;
             padding: 0;
         }
-
         li {
             background: white;
             padding: 12px 15px;
@@ -101,17 +88,14 @@
             align-items: center;
             font-size: 16px;
         }
-
         .info {
             font-size: 14px;
             color: #666;
         }
-
         .actions {
             display: flex;
             gap: 6px;
         }
-
         .edit-mode {
             background: #fff8e1;
             padding: 15px;
@@ -119,7 +103,6 @@
             margin: 10px 0;
             border: 1px solid #ffd600;
         }
-
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -134,7 +117,6 @@
             border-top: 1px solid #ddd;
             height: 60px;
         }
-
         .bottom-nav button {
             background: none;
             border: none;
@@ -145,7 +127,6 @@
             text-align: center;
             line-height: 1.2;
         }
-
         .bottom-nav button.active {
             opacity: 1;
             font-weight: bold;
@@ -159,8 +140,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS для Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Иконка приложения -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
 </head>
-
 <body>
     <!-- Экран входа -->
     <section id="auth-screen" style="text-align: center; padding: 40px 20px;">
@@ -174,7 +158,6 @@
         </form>
         <p id="auth-error" style="color: #ff3b30; height: 20px; font-size: 14px;"></p>
     </section>
-
     <!-- Основное приложение -->
     <div id="app" style="display: none;">
         <h1>💰 Главная</h1>
@@ -304,10 +287,9 @@
                     <p><strong>💼 Доход (план):</strong> <span id="plan-income-value">— ₽</span></p>
                     <p><strong>💼 Доход (факт):</strong> <span id="fact-income-value">0 ₽</span></p>
                     <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
-                        <div id="progress-salary" style="height: 100%; width: 0%; background: #34c759;"></div>
+                        <div id="progress-income-bar" style="height: 100%; width: 0%; background: #34c759;"></div>
                     </div>
                 </div>
-                <!-- Блок расходов (план и факт) -->
                 <div style="margin-top: 10px; padding: 10px; background: #fff3e0; border-radius: 8px;">
                     <p><strong>💸 Расход (план):</strong> <span id="plan-expense-value">— ₽</span></p>
                     <p><strong>💸 Расход (факт):</strong> <span id="fact-expense-value">0 ₽</span></p>
@@ -316,92 +298,94 @@
                     </div>
                 </div>
             </div>
-    </div>
-    <!-- Блок 1: Итоги -->
-    <div style="background: #e6f7ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <h3>📊 Итоги</h3>
-        <p><strong>Доходы:</strong> <span id="analytics-income">0 ₽</span></p>
-        <p><strong>Расходы:</strong> <span id="analytics-expense">0 ₽</span></p>
-        <p><strong>Накоплено:</strong> <span id="analytics-savings">0 ₽</span></p>
-    </div>
-    <!-- Блок 2: Топ-3 расходов -->
-    <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <h3>📉 Топ-3 статьи расходов</h3>
-        <ul id="top-expenses"></ul>
-    </div>
-    <!-- Блок 3: Анализ -->
-    <h2>📊 Анализ</h2>
-    <div style="background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-        <h3>📅 Выберите период</h3>
-        <div style="display: grid; gap: 10px;">
-            <input type="date" id="bi-start-date" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
-            <input type="date" id="bi-end-date" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
-            <button onclick="updateBI()" class="btn" style="font-size: 14px; padding: 10px;">📈
-                Обновить</button>
-        </div>
-    </div>
-    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
-        <h3>📉 Расходы по категориям</h3>
-        <canvas id="expensePieChart" width="400" height="300"></canvas>
-    </div>
-    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
-        <h3>📈 Рост накоплений по неделям</h3>
-        <canvas id="savingsWeeklyChart" width="400" height="300"></canvas>
-    </div>
-    <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
-        <h3>🎯 Выполнение цели накоплений</h3>
-        <div style="position: relative; width: 200px; height: 200px; margin: 20px auto;">
-            <canvas id="goalProgressChart"></canvas>
-            <div id="goal-progress-text"
-                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; font-weight: bold; color: #333;">
-                0%
+            <!-- Блок 1: Итоги -->
+            <div style="background: #e6f7ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <h3>📊 Итоги</h3>
+                <p><strong>Доходы:</strong> <span id="analytics-income">0 ₽</span></p>
+                <p><strong>Расходы:</strong> <span id="analytics-expense">0 ₽</span></p>
+                <p><strong>Накоплено:</strong> <span id="analytics-savings">0 ₽</span></p>
             </div>
-        </div>
-    </div>
-    </section>
-    <!-- Редактирование -->
-    <div id="edit-section" class="edit-mode" style="display: none;">
-        <h3>Редактировать</h3>
-        <form id="edit-form">
-            <input type="hidden" id="edit-id" />
-            <input type="date" id="edit-date" required />
-            <select id="edit-category" required>
-                <option value="Зарплата">💼 Зарплата</option>
-                <option value="Подработка">🔧 Подработка</option>
-                <option value="Продукты">🛒 Продукты</option>
-                <option value="Транспорт">🚗 Транспорт</option>
-                <option value="Жильё">🏠 Жильё</option>
-                <option value="Развлечения">🎮 Развлечения</option>
-                <option value="Здоровье">💊 Здоровье</option>
-                <option value="Образование">📚 Образование</option>
-                <option value="Подарки">🎁 Подарки</option>
-                <option value="Прочее">📦 Прочее</option>
-            </select>
-            <input type="number" id="edit-amount" step="0.01" required />
-            <select id="edit-type">
-                <option value="income">🟢 Доход</option>
-                <option value="expense">🔴 Расход</option>
-            </select>
-            <select id="edit-author">
-                <option value="Антон">👨 Антон</option>
-                <option value="Жибек">👩 Жибек</option>
-            </select>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button type="submit" class="btn success">✔️ Сохранить</button>
-                <button type="button" class="btn" onclick="cancelEdit()">❌ Отмена</button>
+            <!-- Блок 2: Топ-3 расходов -->
+            <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <h3>📉 Топ-3 статьи расходов</h3>
+                <ul id="top-expenses"></ul>
             </div>
-        </form>
+            <!-- Блок 3: Анализ -->
+            <h2>📊 Анализ</h2>
+            <div style="background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <h3>📅 Выберите период</h3>
+                <div style="display: grid; gap: 10px;">
+                    <input type="date" id="bi-start-date"
+                        style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+                    <input type="date" id="bi-end-date"
+                        style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+                    <button onclick="updateBI()" class="btn" style="font-size: 14px; padding: 10px;">📈
+                        Обновить</button>
+                </div>
+            </div>
+            <div
+                style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                <h3>📉 Расходы по категориям</h3>
+                <canvas id="expensePieChart" width="400" height="300"></canvas>
+            </div>
+            <div
+                style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                <h3>📈 Рост накоплений по неделям</h3>
+                <canvas id="savingsWeeklyChart" width="400" height="300"></canvas>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+                <h3>🎯 Выполнение цели накоплений</h3>
+                <div style="position: relative; width: 200px; height: 200px; margin: 20px auto;">
+                    <canvas id="goalProgressChart"></canvas>
+                    <div id="goal-progress-text"
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; font-weight: bold; color: #333;">
+                        0%
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Редактирование -->
+        <div id="edit-section" class="edit-mode" style="display: none;">
+            <h3>Редактировать</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id" />
+                <input type="date" id="edit-date" required />
+                <select id="edit-category" required>
+                    <option value="Зарплата">💼 Зарплата</option>
+                    <option value="Подработка">🔧 Подработка</option>
+                    <option value="Продукты">🛒 Продукты</option>
+                    <option value="Транспорт">🚗 Транспорт</option>
+                    <option value="Жильё">🏠 Жильё</option>
+                    <option value="Развлечения">🎮 Развлечения</option>
+                    <option value="Здоровье">💊 Здоровье</option>
+                    <option value="Образование">📚 Образование</option>
+                    <option value="Подарки">🎁 Подарки</option>
+                    <option value="Прочее">📦 Прочее</option>
+                </select>
+                <input type="number" id="edit-amount" step="0.01" required />
+                <select id="edit-type">
+                    <option value="income">🟢 Доход</option>
+                    <option value="expense">🔴 Расход</option>
+                </select>
+                <select id="edit-author">
+                    <option value="Антон">👨 Антон</option>
+                    <option value="Жибек">👩 Жибек</option>
+                </select>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" class="btn success">✔️ Сохранить</button>
+                    <button type="button" class="btn" onclick="cancelEdit()">❌ Отмена</button>
+                </div>
+            </form>
+        </div>
+        <!-- Фиксированный подвал -->
+        <nav class="bottom-nav">
+            <button onclick="show('home')" data-nav="home">🏠<br>Главная</button>
+            <button onclick="show('add')" data-nav="add">➕<br>Добавить</button>
+            <button onclick="show('plan')" data-nav="plan">📊<br>План</button>
+            <button onclick="show('list')" data-nav="list">📋<br>История</button>
+            <button onclick="show('analytics')" data-nav="analytics">📈<br>Отчет</button>
+        </nav>
     </div>
-    <!-- Фиксированный подвал -->
-    <nav class="bottom-nav">
-        <button onclick="show('home')" data-nav="home">🏠<br>Главная</button>
-        <button onclick="show('add')" data-nav="add">➕<br>Добавить</button>
-        <button onclick="show('plan')" data-nav="plan">📊<br>План</button>
-        <button onclick="show('list')" data-nav="list">📋<br>История</button>
-        <button onclick="show('analytics')" data-nav="analytics">📈<br>Отчет</button>
-    </nav>
-    </div>
-
     <script>
         // === 1. Firebase Config
         const firebaseConfig = {
@@ -693,23 +677,12 @@
                 .reduce((sum, t) => sum + t.amount, 0);
             const plannedIncome = plan ? plan.income : 0;
             const plannedExpense = plan ? plan.expense : 0;
-
-            // Обновляем план и факт по доходу
             document.getElementById('plan-income-value').textContent = `${formatNumber(plannedIncome)} ₽`;
             document.getElementById('fact-income-value').textContent = `${formatNumber(actualIncome)} ₽`;
-
-            // Обновляем план и факт по расходу
+            document.getElementById('progress-income-bar').style.width = plannedIncome > 0 ? Math.min(100, (actualIncome / plannedIncome) * 100) + '%' : '0%';
             document.getElementById('plan-expense-value').textContent = `${formatNumber(plannedExpense)} ₽`;
             document.getElementById('fact-expense-value').textContent = `${formatNumber(actualExpense)} ₽`;
-
-            // Прогресс-бары
-            document.getElementById('progress-income-bar').style.width = plannedIncome > 0
-                ? Math.min(100, (actualIncome / plannedIncome) * 100) + '%'
-                : '0%';
-
-            document.getElementById('progress-expense-bar').style.width = plannedExpense > 0
-                ? Math.min(100, (actualExpense / plannedExpense) * 100) + '%'
-                : '0%';
+            document.getElementById('progress-expense-bar').style.width = plannedExpense > 0 ? Math.min(100, (actualExpense / plannedExpense) * 100) + '%' : '0%';
         }
         // Вспомогательная: форматирует месяц (2025-04 → Апрель 2025)
         function formatMonth(monthStr) {
@@ -1030,5 +1003,4 @@
         });
     </script>
 </body>
-
 </html>
