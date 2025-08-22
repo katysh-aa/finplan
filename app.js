@@ -727,3 +727,29 @@ function refreshData() {
         refreshIndicator.style.opacity = 0;
     }, 1500);
 }
+// === 29. Принудительное обновление PWA
+function refreshApp() {
+    const indicator = document.getElementById('refresh-indicator');
+    if (indicator) {
+        indicator.style.opacity = 1;
+        indicator.querySelector('span').textContent = '🔄 Проверка обновлений...';
+    }
+
+    if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.update();
+
+            // Через 1.5 сек — сообщаем
+            setTimeout(() => {
+                if (indicator) {
+                    indicator.querySelector('span').textContent = '✅ Обновлено!';
+                }
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            }, 1500);
+        });
+    } else {
+        window.location.reload();
+    }
+}
