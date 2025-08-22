@@ -637,3 +637,15 @@ auth.onAuthStateChanged(user => {
         document.getElementById('auth-screen').style.display = 'block';
     }
 });
+// === 26. Выход из аккаунта
+function logout() {
+    if (confirm('Вы уверены, что хотите выйти?')) {
+        auth.signOut().then(() => {
+            // Firebase сам вызовет onAuthStateChanged
+            alert('Вы вышли из аккаунта');
+        }).catch(err => {
+            console.error("Ошибка выхода:", err);
+            alert('Не удалось выйти. Попробуйте снова.');
+        });
+    }
+}
