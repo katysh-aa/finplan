@@ -6,14 +6,16 @@
 
 body {
     font-family: -apple-system, sans-serif;
-    padding: 20px;
     background: #f9f9f9;
     color: #333;
     max-width: 600px;
     margin: 0 auto;
+    /* Делаем контент не меньше высоты экрана */
     min-height: 100vh;
-    padding-bottom: 80px;
+    /* Отступ снизу — под подвал */
+    padding-bottom: 100px; /* 60px (высота подвала) + 20px отступ */
     position: relative;
+    box-sizing: border-box;
 }
 
 h1 {
