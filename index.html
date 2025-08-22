@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -18,6 +19,7 @@
     <!-- SheetJS для Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
+
 <body>
     <!-- Индикатор pull-to-refresh -->
     <div id="refresh-indicator" style="
@@ -65,8 +67,19 @@
                     width: auto;
                 " title="Выйти из аккаунта">🚪</button>
             </div>
-
-            <h1>💰 Копилка</h1>
+            <!-- Кнопки в верхнем углу -->
+            <div style="position: absolute; top: 20px; left: 20px; z-index: 10;">
+                <button onclick="refreshApp()" class="btn" style="
+        background: transparent;
+        color: #007AFF;
+        font-size: 14px;
+        padding: 8px 12px;
+        border: 1px solid #007AFF;
+        border-radius: 8px;
+        width: auto;
+    " title="Обновить приложение">🔄</button>
+            </div>
+            <h1>💰 Главная</h1>
             <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
                 <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
                 <div style="display: flex; gap: 8px; align-items: center;">
@@ -284,4 +297,5 @@
     </div>
     <script src="app.js"></script>
 </body>
+
 </html>
