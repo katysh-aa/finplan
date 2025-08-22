@@ -735,21 +735,39 @@ function refreshApp() {
         indicator.querySelector('span').textContent = '🔄 Проверка обновлений...';
     }
 
-    if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+    if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(registration => {
+            // Принудительно проверяем обновления
             registration.update();
 
-            // Через 1.5 сек — сообщаем
-            setTimeout(() => {
-                if (indicator) {
-                    indicator.querySelector('span').textContent = '✅ Обновлено!';
-                }
-                setTimeout(() => {
+            // Наблюдаем за waiting-воркером
+            const checkForUpdate = () => {
+                if (registration.waiting) {
+                    console.log('Найдена новая версия, перезагружаем...');
+                    if (indicator) {
+                        indicator.querySelector('span').textContent = '✅ Обновлено!';
+                    }
                     window.location.reload();
-                }, 800);
-            }, 1500);
+                    return;
+                }
+                // Повторяем через 500 мс
+                setTimeout(checkForUpdate, 500);
+            };
+
+            // Запускаем проверку
+            checkForUpdate();
+
+            // На всякий случай — перезагрузка через 3 сек
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+
+        }).catch(err => {
+            console.error('Ошибка Service Worker:', err);
+            window.location.reload();
         });
     } else {
+        // Если нет SW — просто перезагружаем
         window.location.reload();
     }
 }
