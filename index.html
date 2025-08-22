@@ -844,29 +844,47 @@
             updateGoalProgressChart(progress, savings, savingsGoal);
         }
         function getWeeklySavings(transactions, start, end) {
+            // Сортируем транзакции по дате
+            const sorted = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
             const weeks = [];
             const current = new Date(start);
             let weekNum = 1;
             const endDate = new Date(end);
+            let cumulativeSavings = 0; // Накопленный итог с начала периода
+
             while (current <= endDate) {
                 const weekStart = new Date(current);
                 const weekEnd = new Date(current);
                 weekEnd.setDate(weekEnd.getDate() + 6);
                 if (weekEnd > endDate) weekEnd.setTime(endDate.getTime());
+
                 const weekStr = weekStart.toISOString().slice(0, 10);
                 const weekEndStr = weekEnd.toISOString().slice(0, 10);
-                const weekTransactions = transactions.filter(t => t.date >= weekStr && t.date <= weekEndStr);
+
+                // Фильтруем транзакции за неделю
+                const weekTransactions = sorted.filter(t => t.date >= weekStr && t.date <= weekEndStr);
+
+                // Считаем доход и расход за неделю
                 const income = weekTransactions
                     .filter(t => t.type === 'income')
                     .reduce((sum, t) => sum + t.amount, 0);
                 const expense = weekTransactions
                     .filter(t => t.type === 'expense')
                     .reduce((sum, t) => sum + t.amount, 0);
-                const savings = income - expense;
-                weeks.push({ week: weekNum, savings });
+                const weeklySavings = income - expense;
+
+                // Добавляем к нарастающему итогу
+                cumulativeSavings += weeklySavings;
+
+                weeks.push({
+                    week: weekNum,
+                    savings: cumulativeSavings // кумулятивное значение
+                });
+
                 weekNum++;
                 current.setDate(current.getDate() + 7);
             }
+
             return weeks;
         }
         function updateGoalProgressChart(progress, current, goal) {
