@@ -22,6 +22,24 @@
 </head>
 
 <body>
+    <!-- Индикатор pull-to-refresh -->
+<div id="refresh-indicator" style="
+    position: absolute;
+    top: -50px;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+">
+    <span style="color: #007AFF; font-size: 14px;">🔄 Обновление...</span>
+</div>
     <!-- Экран входа -->
     <section id="auth-screen" style="text-align: center; padding: 40px 20px;">
         <h2>🔐 Вход в Семейный бюджет</h2>
