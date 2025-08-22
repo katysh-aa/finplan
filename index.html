@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Семейный бюджет</title>
+    <title>🏦Семейный бюджет</title>
     <style>
         * {
             box-sizing: border-box;
@@ -301,8 +301,11 @@
                 <h3>🎯 Финансовый план на месяц</h3>
                 <p><strong>📅 Текущий месяц:</strong> <span id="current-month">Загрузка...</span></p>
                 <div style="margin-top: 10px; padding: 10px; background: #e6f7ff; border-radius: 8px;">
-                    <p><strong>💼 Доход (план):</strong> <span id="plan-income">— ₽</span></p>
-                    <p><strong>💼 Доход (факт):</strong> <span id="fact-salary">0 ₽</span></p>
+                    <p><strong>💼 Доход (план):</strong> <span id="plan-income-value">— ₽</span></p>
+                    <p><strong>💼 Доход (факт):</strong> <span id="fact-income-value">0 ₽</span></p>
+
+                    <p><strong>💸 Расход (план):</strong> <span id="plan-expense-value">— ₽</span></p>
+                    <p><strong>💸 Расход (факт):</strong> <span id="fact-expense-value">0 ₽</span></p>
                     <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
                         <div id="progress-salary" style="height: 100%; width: 0%; background: #34c759;"></div>
                     </div>
@@ -695,14 +698,16 @@
                 .reduce((sum, t) => sum + t.amount, 0);
             const plannedIncome = plan ? plan.income : 0;
             const plannedExpense = plan ? plan.expense : 0;
-            document.getElementById('plan-income').textContent = `${formatNumber(plannedIncome)} ₽`;
-            document.getElementById('fact-salary').textContent = `${formatNumber(actualIncome)} ₽`;
+
+            // ✅ Исправленные id
+            document.getElementById('plan-income-value').textContent = `${formatNumber(plannedIncome)} ₽`;
+            document.getElementById('fact-income-value').textContent = `${formatNumber(actualIncome)} ₽`;
+            document.getElementById('plan-expense-value').textContent = `${formatNumber(plannedExpense)} ₽`;
+            document.getElementById('fact-expense-value').textContent = `${formatNumber(actualExpense)} ₽`;
+
+            // Прогресс-бары (оставляем как есть — они используют id progress-salary и progress-housing)
             document.getElementById('progress-salary').style.width = plannedIncome > 0 ? Math.min(100, (actualIncome / plannedIncome) * 100) + '%' : '0%';
-            document.getElementById('plan-expense').textContent = `${formatNumber(plannedExpense)} ₽`;
-            document.getElementById('fact-housing').textContent = `${formatNumber(actualExpense)} ₽`;
             document.getElementById('progress-housing').style.width = plannedExpense > 0 ? Math.min(100, (actualExpense / plannedExpense) * 100) + '%' : '0%';
-            document.getElementById('fact-food').textContent = `${formatNumber(actualExpense)} ₽`;
-            document.getElementById('progress-food').style.width = plannedExpense > 0 ? Math.min(100, (actualExpense / plannedExpense) * 100) + '%' : '0%';
         }
         // Вспомогательная: форматирует месяц (2025-04 → Апрель 2025)
         function formatMonth(monthStr) {
