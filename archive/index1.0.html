@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Семейный бюджет</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 80px;
+      position: relative;
+    }
+
+    h1 {
+      text-align: center;
+      color: #007AFF;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    h3 {
+      text-align: center;
+    }
+
+    .btn {
+      background: #007AFF;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .btn.small {
+      width: auto;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .btn.danger {
+      background: #ff3b30;
+    }
+
+    .btn.success {
+      background: #34c759;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    input,
+    select {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: white;
+      padding: 12px 15px;
+      border-radius: 10px;
+      margin: 8px 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+    }
+
+    .info {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .edit-mode {
+      background: #fff8e1;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 10px 0;
+      border: 1px solid #ffd600;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      border-top: 1px solid #ddd;
+      height: 60px;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: #007AFF;
+      font-size: 14px;
+      opacity: 0.7;
+      padding: 0;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .bottom-nav button.active {
+      opacity: 1;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS для Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+  <h1>💰 Главная</h1>
+
+  <!-- Главная -->
+  <section id="home">
+
+    <div style="margin-top: 20px; padding: 12px; background: #f8f8f8; border-radius: 10px;">
+      <label style="display: block; margin-bottom: 8px;"><strong>Установите цель:</strong></label>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <input type="number" id="savings-goal" value="500000" placeholder="500000"
+          style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <button onclick="saveGoal()" class="btn" style="font-size: 14px; padding: 10px 12px;">💾 Сохранить</button>
+      </div>
+    </div>
+
+    <h2>🎯 Цель накоплений</h2>
+    <div
+      style="background: #f0f8ff; padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+      <p style="font-size: 28px; font-weight: bold; color: #34c759;" id="total-savings">0 ₽</p>
+      <p style="color: #666; font-size: 14px;" id="progress-text">0% от цели</p>
+      <div style="height: 6px; background: #ddd; border-radius: 3px; overflow: hidden; margin: 10px 0;">
+        <div id="progress-fill" style="display: block; height: 100%; width: 0%; background: #34c759;"></div>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 30px;">📊 Общий прогресс</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+      <div style="text-align: center; background: #e6f7ff; padding: 14px; border-radius: 10px;">
+        <p style="margin: 0; color: #007AFF;"><strong>Доход</strong></p>
+        <p style="margin: 8px 0 0; font-size: 18px; color: #34c759;" id="total-income">0 ₽</p>
+      </div>
+      <div style="text-align: center; background: #fff3e0; padding: 14px; border-radius: 10px;">
+        <p style="margin: 0; color: #FF9500;"><strong>Расход</strong></p>
+        <p style="margin: 8px 0 0; font-size: 18px; color: #ff3b30;" id="total-expense">0 ₽</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Вкладка "Добавить" -->
+  <section id="add" style="display: none;">
+    <h2>➕ Добавить операцию</h2>
+    <form id="add-form">
+      <input type="date" id="date" required />
+      <select id="category" required>
+        <option value="">— Категория —</option>
+        <option value="Зарплата">💼 Зарплата</option>
+        <option value="Подработка">🔧 Подработка</option>
+        <option value="Продукты">🛒 Продукты</option>
+        <option value="Транспорт">🚗 Транспорт</option>
+        <option value="Жильё">🏠 Жильё</option>
+        <option value="Развлечения">🎮 Развлечения</option>
+        <option value="Здоровье">💊 Здоровье</option>
+        <option value="Образование">📚 Образование</option>
+        <option value="Подарки">🎁 Подарки</option>
+        <option value="Прочее">📦 Прочее</option>
+      </select>
+      <input type="number" id="amount" placeholder="Сумма" step="0.01" required />
+      <select id="type" required>
+        <option value="income">🟢 Доход</option>
+        <option value="expense">🔴 Расход</option>
+      </select>
+      <select id="author" required>
+        <option value="Антон">👨 Антон</option>
+        <option value="Жибек">👩 Жибек</option>
+      </select>
+      <button type="submit" class="btn">Сохранить</button>
+    </form>
+    <h3>Последние 10 операций</h3>
+    <ul id="recent-transactions"></ul>
+  </section>
+
+  <!-- Вкладка "История" -->
+  <section id="list" style="display: none;">
+    <h2>📋 История операций</h2>
+    <div style="display: grid; gap: 10px; margin: 10px 0;">
+      <input type="date" id="filter-start" placeholder="С даты" />
+      <input type="date" id="filter-end" placeholder="По дату" />
+    </div>
+    <div style="margin: 10px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button onclick="filterByDate()" class="btn" style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px;">🔍
+        Фильтровать</button>
+      <button onclick="clearFilter()" class="btn"
+        style="font-size: 14px; padding: 10px; flex: 1; min-width: 120px; background: #555;">🗑️ Сбросить</button>
+      <button onclick="exportToExcel()" class="btn" style="font-size: 14px; background: #2e74b5;">📥 Экспорт в
+        Excel</button>
+    </div>
+    <ul id="all-transactions"></ul>
+  </section>
+
+  <!-- Вкладка "Отчет" -->
+  <section id="analytics" style="display: none;">
+    <h2>📈 Отчет</h2>
+
+    <!-- Финансовый план на месяц -->
+    <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+      <h3>🎯 Финансовый план на месяц</h3>
+      <p><strong>📅 Текущий месяц:</strong> <span id="current-month">Загрузка...</span></p>
+
+      <div style="margin-top: 10px; padding: 10px; background: #e6f7ff; border-radius: 8px;">
+        <p><strong>💼 Зарплата (план):</strong> 160 000 ₽</p>
+        <p><strong>💼 Зарплата (факт):</strong> <span id="fact-salary">0 ₽</span></p>
+        <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
+          <div id="progress-salary" style="height: 100%; width: 0%; background: #34c759;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px; padding: 10px; background: #fff3e0; border-radius: 8px;">
+        <p><strong>🏠 Жильё (план):</strong> 80 000 ₽</p>
+        <p><strong>🏠 Жильё (факт):</strong> <span id="fact-housing">0 ₽</span></p>
+        <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
+          <div id="progress-housing" style="height: 100%; width: 0%; background: #007AFF;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
+        <p><strong>🛒 Продукты (план):</strong> 20 000 ₽</p>
+        <p><strong>🛒 Продукты (факт):</strong> <span id="fact-food">0 ₽</span></p>
+        <div style="height: 6px; background: #ddd; border-radius: 3px; margin: 5px 0;">
+          <div id="progress-food" style="height: 100%; width: 0%; background: #FF9500;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Блок 1: Итоги -->
+    <div style="background: #e6f7ff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+      <h3>📊 Итоги</h3>
+      <p><strong>Доходы:</strong> <span id="analytics-income">0 ₽</span></p>
+      <p><strong>Расходы:</strong> <span id="analytics-expense">0 ₽</span></p>
+      <p><strong>Накоплено:</strong> <span id="analytics-savings">0 ₽</span></p>
+    </div>
+
+    <!-- Блок 2: Топ-3 расходов -->
+    <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+      <h3>📉 Топ-3 статьи расходов</h3>
+      <ul id="top-expenses"></ul>
+    </div>
+
+    <!-- Блок 3: Анализ -->
+    <h2>📊 Анализ</h2>
+    <div style="background: #f8f8f8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+      <h3>📅 Выберите период</h3>
+      <div style="display: grid; gap: 10px;">
+        <input type="date" id="bi-start-date" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <input type="date" id="bi-end-date" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+        <button onclick="updateBI()" class="btn" style="font-size: 14px; padding: 10px;">📈 Обновить</button>
+      </div>
+    </div>
+
+    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+      <h3>📉 Расходы по категориям</h3>
+      <canvas id="expensePieChart" width="400" height="300"></canvas>
+    </div>
+
+    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+      <h3>📈 Рост накоплений по неделям</h3>
+      <canvas id="savingsWeeklyChart" width="400" height="300"></canvas>
+    </div>
+
+    <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+      <h3>🎯 Выполнение цели накоплений</h3>
+      <div style="position: relative; width: 200px; height: 200px; margin: 20px auto;">
+        <canvas id="goalProgressChart"></canvas>
+        <div id="goal-progress-text"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; font-weight: bold; color: #333;">
+          0%
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Редактирование -->
+  <div id="edit-section" class="edit-mode" style="display: none;">
+    <h3>Редактировать</h3>
+    <form id="edit-form">
+      <input type="hidden" id="edit-id" />
+      <input type="date" id="edit-date" required />
+      <select id="edit-category" required>
+        <option value="Зарплата">💼 Зарплата</option>
+        <option value="Подработка">🔧 Подработка</option>
+        <option value="Продукты">🛒 Продукты</option>
+        <option value="Транспорт">🚗 Транспорт</option>
+        <option value="Жильё">🏠 Жильё</option>
+        <option value="Развлечения">🎮 Развлечения</option>
+        <option value="Здоровье">💊 Здоровье</option>
+        <option value="Образование">📚 Образование</option>
+        <option value="Подарки">🎁 Подарки</option>
+        <option value="Прочее">📦 Прочее</option>
+      </select>
+      <input type="number" id="edit-amount" step="0.01" required />
+      <select id="edit-type">
+        <option value="income">🟢 Доход</option>
+        <option value="expense">🔴 Расход</option>
+      </select>
+      <select id="edit-author">
+        <option value="Антон">👨 Антон</option>
+        <option value="Жибек">👩 Жибек</option>
+      </select>
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button type="submit" class="btn success">✔️ Сохранить</button>
+        <button type="button" class="btn" onclick="cancelEdit()">❌ Отмена</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Фиксированный подвал -->
+  <nav class="bottom-nav">
+    <button onclick="show('home')" data-nav="home">🏠<br>Главная</button>
+    <button onclick="show('add')" data-nav="add">➕<br>Добавить</button>
+    <button onclick="show('list')" data-nav="list">📋<br>История</button>
+    <button onclick="show('analytics')" data-nav="analytics">📈<br>Отчет</button>
+  </nav>
+
+  <script>
+    // === 1. Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCw3MkLyY_3wL5lPFZP3RN3pNNL_5MXfCQ",
+      authDomain: "budget-d7b61.firebaseapp.com",
+      projectId: "budget-d7b61",
+      storageBucket: "budget-d7b61.firebasestorage.app",
+      messagingSenderId: "853003887380",
+      appId: "1:853003887380:web:5aa5fda151ff9823c9d801",
+      measurementId: "G-0JZTCC3MLW"
+    };
+
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const transactionsCollection = db.collection('transactions');
+
+    // === Ссылки на настройки
+    const goalDocRef = db.collection('settings').doc('goal');
+
+    // === 2. Глобальные переменные
+    let transactions = [];
+    let savingsGoal = 500000;
+
+    // === 3. Форматирование чисел
+    function formatNumber(num) {
+      return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
+
+    // === 4. Загрузка цели из Firebase
+    function loadGoalFromFirebase() {
+      goalDocRef.onSnapshot(doc => {
+        if (doc.exists) {
+          savingsGoal = doc.data().amount || 500000;
+        } else {
+          savingsGoal = 500000;
+          goalDocRef.set({ amount: savingsGoal });
+        }
+        const input = document.getElementById('savings-goal');
+        if (input) input.value = savingsGoal;
+        updateHome();
+        localStorage.setItem('savingsGoal', savingsGoal);
+      });
+    }
+
+    // === 5. Сохранение цели
+    function saveGoal() {
+      const input = document.getElementById('savings-goal');
+      const value = parseFloat(input.value);
+      if (isNaN(value) || value < 0) {
+        alert('Введите корректную сумму');
+        return;
+      }
+      goalDocRef.set({ amount: value })
+        .then(() => {
+          savingsGoal = value;
+          localStorage.setItem('savingsGoal', savingsGoal);
+          updateHome();
+          alert(`🎯 Цель обновлена: ${formatNumber(savingsGoal)} ₽`);
+        })
+        .catch(err => {
+          console.error("Ошибка сохранения цели:", err);
+          alert("Не удалось сохранить цель. Проверь интернет.");
+        });
+    }
+
+    // === 6. Обновление статистики
+    function updateHome() {
+      const income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const expense = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const savings = income - expense;
+      const progress = savingsGoal > 0 ? Math.min(100, (savings / savingsGoal) * 100) : 0;
+
+      document.getElementById('total-savings').textContent = formatNumber(savings) + ' ₽';
+      document.getElementById('progress-fill').style.width = progress + '%';
+      document.getElementById('progress-text').textContent =
+        `${Math.round(progress)}% от цели (${formatNumber(savings)} / ${formatNumber(savingsGoal)} ₽)`;
+      document.getElementById('progress-fill').style.background = savings >= savingsGoal ? '#34c759' : '#007AFF';
+
+      document.getElementById('total-income').textContent = formatNumber(income) + ' ₽';
+      document.getElementById('total-expense').textContent = formatNumber(expense) + ' ₽';
+    }
+
+    // === 7. Загрузка данных
+    function loadFromFirebase() {
+      transactionsCollection.orderBy('date', 'desc').onSnapshot(snapshot => {
+        transactions = [];
+        snapshot.forEach(doc => {
+          transactions.push({ id: doc.id, ...doc.data() });
+        });
+        renderRecentList();
+        updateHome();
+        updateAnalytics();
+      });
+    }
+
+    // === 8. Последние 10 операций
+    function renderRecentList() {
+      const list = document.getElementById('recent-transactions');
+      list.innerHTML = '';
+      const recent = [...transactions]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 10);
+      recent.forEach(tx => {
+        const li = document.createElement('li');
+        const amountColor = tx.type === 'income' ? '#34c759' : '#ff3b30';
+        const sign = tx.type === 'income' ? '+' : '-';
+        li.innerHTML = `
+          <div>
+            <div><strong>${tx.category}</strong> <span style="color: ${amountColor}; font-weight: bold;">${sign}${formatNumber(tx.amount)} ₽</span></div>
+            <div class="info">${tx.date} · ${tx.author}</div>
+          </div>
+          <div class="actions">
+            <button class="btn small" onclick="startEdit('${tx.id}')">✏️</button>
+            <button class="btn small danger" onclick="deleteTransaction('${tx.id}')">🗑️</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+      if (recent.length === 0) {
+        const li = document.createElement('li');
+        li.style.color = '#999';
+        li.style.fontStyle = 'italic';
+        li.textContent = 'Нет записей';
+        list.appendChild(li);
+      }
+    }
+
+    // === 9. Все операции
+    function renderAllList(filtered = transactions) {
+      const list = document.getElementById('all-transactions');
+      list.innerHTML = '';
+      const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+      sorted.forEach(tx => {
+        const li = document.createElement('li');
+        const amountColor = tx.type === 'income' ? '#34c759' : '#ff3b30';
+        const sign = tx.type === 'income' ? '+' : '-';
+        li.innerHTML = `
+          <div>
+            <div><strong>${tx.category}</strong> <span style="color: ${amountColor}; font-weight: bold;">${sign}${formatNumber(tx.amount)} ₽</span></div>
+            <div class="info">${tx.date} · ${tx.author}</div>
+          </div>
+          <div class="actions">
+            <button class="btn small" onclick="startEdit('${tx.id}')">✏️</button>
+            <button class="btn small danger" onclick="deleteTransaction('${tx.id}')">🗑️</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+      if (sorted.length === 0) {
+        const li = document.createElement('li');
+        li.style.color = '#999';
+        li.style.fontStyle = 'italic';
+        li.textContent = 'Нет операций';
+        list.appendChild(li);
+      }
+    }
+
+    // === 10. Фильтр по датам
+    function filterByDate() {
+      const start = document.getElementById('filter-start').value;
+      const end = document.getElementById('filter-end').value;
+      let filtered = transactions;
+      if (start) filtered = filtered.filter(t => t.date >= start);
+      if (end) filtered = filtered.filter(t => t.date <= end);
+      renderAllList(filtered);
+    }
+
+    function clearFilter() {
+      document.getElementById('filter-start').value = '';
+      document.getElementById('filter-end').value = '';
+      renderAllList();
+    }
+
+    // === 11. Добавление
+    document.getElementById('add-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const form = e.target;
+      const newTx = {
+        date: form.date.value,
+        category: form.category.value,
+        amount: parseFloat(form.amount.value),
+        type: form.type.value,
+        author: form.author.value
+      };
+      transactionsCollection.add(newTx)
+        .then(() => form.reset())
+        .catch(err => alert('Ошибка: ' + err.message));
+    });
+
+    // === 12. Редактирование
+    function startEdit(id) {
+      const tx = transactions.find(t => t.id === id);
+      if (!tx) return;
+      document.getElementById('edit-id').value = tx.id;
+      document.getElementById('edit-date').value = tx.date;
+      document.getElementById('edit-category').value = tx.category;
+      document.getElementById('edit-amount').value = tx.amount;
+      document.getElementById('edit-type').value = tx.type;
+      document.getElementById('edit-author').value = tx.author;
+      document.getElementById('edit-section').style.display = 'block';
+    }
+
+    document.getElementById('edit-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const form = e.target;
+      const id = form['edit-id'].value;
+      const updatedTx = {
+        date: form['edit-date'].value,
+        category: form['edit-category'].value,
+        amount: parseFloat(form['edit-amount'].value),
+        type: form['edit-type'].value,
+        author: form['edit-author'].value
+      };
+      transactionsCollection.doc(id).update(updatedTx)
+        .then(() => {
+          document.getElementById('edit-section').style.display = 'none';
+          form.reset();
+        })
+        .catch(err => alert('Ошибка: ' + err.message));
+    });
+
+    function cancelEdit() {
+      document.getElementById('edit-section').style.display = 'none';
+      document.getElementById('edit-form').reset();
+    }
+
+    // === 13. Удаление
+    function deleteTransaction(id) {
+      if (confirm('Удалить операцию?')) {
+        transactionsCollection.doc(id).delete();
+      }
+    }
+
+    // === 14. Навигация
+    function show(sectionId) {
+      document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+      document.querySelectorAll('.bottom-nav button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.bottom-nav button[onclick="show('${sectionId}')"]`).classList.add('active');
+      if (sectionId === 'list') renderAllList();
+      if (sectionId === 'analytics') updateAnalytics();
+    }
+
+    // === 15. Аналитика
+    function updateAnalytics() {
+      const income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const expense = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const savings = income - expense;
+
+      document.getElementById('analytics-income').textContent = formatNumber(income) + ' ₽';
+      document.getElementById('analytics-expense').textContent = formatNumber(expense) + ' ₽';
+      document.getElementById('analytics-savings').textContent = formatNumber(savings) + ' ₽';
+
+      const expensesByCategory = {};
+      transactions
+        .filter(t => t.type === 'expense')
+        .forEach(t => {
+          expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
+        });
+      const sorted = Object.entries(expensesByCategory)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+      const topList = document.getElementById('top-expenses');
+      topList.innerHTML = '';
+      if (sorted.length === 0) {
+        const li = document.createElement('li');
+        li.style.color = '#999';
+        li.textContent = 'Нет расходов';
+        topList.appendChild(li);
+      } else {
+        sorted.forEach(([cat, amt]) => {
+          const li = document.createElement('li');
+          li.innerHTML = `<strong>${cat}:</strong> ${formatNumber(amt)} ₽`;
+          topList.appendChild(li);
+        });
+      }
+
+      updateMonthlyPlan();
+      initBI();
+    }
+
+    // === 16. Ежемесячный план
+    function updateMonthlyPlan() {
+      const now = new Date();
+      const currentMonth = now.toISOString().slice(0, 7);
+      document.getElementById('current-month').textContent = currentMonth;
+
+      const currentTransactions = transactions.filter(t => t.date.startsWith(currentMonth));
+
+      const salary = currentTransactions
+        .filter(t => t.category === 'Зарплата' && t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const housing = currentTransactions
+        .filter(t => t.category === 'Жильё' && t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const food = currentTransactions
+        .filter(t => t.category === 'Продукты' && t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      document.getElementById('fact-salary').textContent = formatNumber(salary) + ' ₽';
+      document.getElementById('fact-housing').textContent = formatNumber(housing) + ' ₽';
+      document.getElementById('fact-food').textContent = formatNumber(food) + ' ₽';
+
+      document.getElementById('progress-salary').style.width = Math.min(100, (salary / 160000) * 100) + '%';
+      document.getElementById('progress-housing').style.width = Math.min(100, (housing / 80000) * 100) + '%';
+      document.getElementById('progress-food').style.width = Math.min(100, (food / 20000) * 100) + '%';
+    }
+
+    // === 17. Анализ: диаграммы
+    let expensePieChart = null;
+    let savingsWeeklyChart = null;
+    let goalProgressChart = null;
+
+    function initBI() {
+      const today = new Date();
+      const startDate = new Date();
+      startDate.setDate(today.getDate() - 30);
+      document.getElementById('bi-start-date').valueAsDate = startDate;
+      document.getElementById('bi-end-date').valueAsDate = today;
+      updateBI();
+    }
+
+    function updateBI() {
+      const start = document.getElementById('bi-start-date').value;
+      const end = document.getElementById('bi-end-date').value;
+      if (!start || !end) {
+        alert('Выберите обе даты');
+        return;
+      }
+
+      const filtered = transactions.filter(t => t.date >= start && t.date <= end);
+      const income = filtered
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const expense = filtered
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      const savings = income - expense;
+
+      // 1. Круговая диаграмма расходов
+      const expensesByCategory = {};
+      filtered
+        .filter(t => t.type === 'expense')
+        .forEach(t => {
+          expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
+        });
+      const categories = Object.keys(expensesByCategory);
+      const values = Object.values(expensesByCategory);
+
+      if (expensePieChart) expensePieChart.destroy();
+      const ctx1 = document.getElementById('expensePieChart').getContext('2d');
+      expensePieChart = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: values,
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#7CFC00', '#FFD700', '#8A2BE2']
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      // 2. График по неделям
+      const weeklyData = getWeeklySavings(filtered, start, end);
+      const weekLabels = weeklyData.map(w => `Неделя ${w.week}`);
+      const weekSavings = weeklyData.map(w => w.savings);
+
+      if (savingsWeeklyChart) savingsWeeklyChart.destroy();
+      const ctx2 = document.getElementById('savingsWeeklyChart').getContext('2d');
+      savingsWeeklyChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: weekLabels,
+          datasets: [{
+            label: 'Накопления (₽)',
+            data: weekSavings,
+            borderColor: '#34c759',
+            backgroundColor: 'rgba(52, 199, 89, 0.2)',
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+
+      // 3. Кольцевой прогресс-бар
+      const progress = savingsGoal > 0 ? Math.min(100, (savings / savingsGoal) * 100) : 0;
+      updateGoalProgressChart(progress, savings, savingsGoal);
+    }
+
+    function getWeeklySavings(transactions, start, end) {
+      const weeks = [];
+      const current = new Date(start);
+      let weekNum = 1;
+      while (current <= new Date(end)) {
+        const weekStart = new Date(current);
+        const weekEnd = new Date(current);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        const weekStr = weekStart.toISOString().slice(0, 10);
+        const weekEndStr = weekEnd.toISOString().slice(0, 10);
+        const weekTransactions = transactions.filter(t => t.date >= weekStr && t.date <= weekEndStr);
+        const income = weekTransactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + t.amount, 0);
+        const expense = weekTransactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + t.amount, 0);
+        const savings = income - expense;
+        weeks.push({ week: weekNum, savings });
+        weekNum++;
+        current.setDate(current.getDate() + 7);
+      }
+      return weeks;
+    }
+
+    function updateGoalProgressChart(progress, current, goal) {
+      if (goalProgressChart) goalProgressChart.destroy();
+      const ctx = document.getElementById('goalProgressChart').getContext('2d');
+      goalProgressChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [progress, 100 - progress],
+            backgroundColor: [progress >= 100 ? '#34c759' : '#007AFF', '#eee'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '95%',
+          plugins: { tooltip: { enabled: false }, legend: { display: false } }
+        }
+      });
+      document.getElementById('goal-progress-text').textContent = `${Math.round(progress)}%`;
+    }
+
+    // === 18. Экспорт в Excel
+    function exportToExcel() {
+      const start = document.getElementById('filter-start').value;
+      const end = document.getElementById('filter-end').value;
+
+      let filtered = [...transactions];
+      if (start) filtered = filtered.filter(t => t.date >= start);
+      if (end) filtered = filtered.filter(t => t.date <= end);
+
+      if (filtered.length === 0) {
+        alert('Нет данных для экспорта');
+        return;
+      }
+
+      const data = filtered.map(tx => ({
+        "Дата": tx.date,
+        "Категория": tx.category,
+        "Сумма": tx.amount,
+        "Тип": tx.type === 'income' ? 'Доход' : 'Расход',
+        "Автор": tx.author
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Операции");
+
+      const period = start && end ? `${start}_до_${end}` : "все";
+      XLSX.writeFile(wb, `финансы_экспорт_${period}.xlsx`);
+    }
+
+    // === 19. Инициализация
+    function init() {
+      document.getElementById('date').valueAsDate = new Date();
+      loadFromFirebase();
+      loadGoalFromFirebase();
+    }
+
+    // Запуск
+    document.addEventListener('DOMContentLoaded', () => {
+      show('home');
+      init();
+    });
+  </script>
+</body>
+
+</html>
