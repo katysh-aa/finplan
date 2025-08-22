@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -10,6 +11,7 @@
             margin: 0;
             padding: 0;
         }
+
         body {
             font-family: -apple-system, sans-serif;
             padding: 20px;
@@ -21,20 +23,24 @@
             padding-bottom: 80px;
             position: relative;
         }
+
         h1 {
             text-align: center;
             color: #007AFF;
             margin-bottom: 20px;
         }
+
         h2 {
             border-bottom: 1px solid #eee;
             padding-bottom: 8px;
             margin-top: 30px;
             text-align: center;
         }
+
         h3 {
             text-align: center;
         }
+
         .btn {
             background: #007AFF;
             color: white;
@@ -47,17 +53,21 @@
             width: 100%;
             margin: 10px 0;
         }
+
         .btn.small {
             width: auto;
             padding: 8px 12px;
             font-size: 14px;
         }
+
         .btn.danger {
             background: #ff3b30;
         }
+
         .btn.success {
             background: #34c759;
         }
+
         form {
             display: grid;
             gap: 12px;
@@ -66,6 +76,7 @@
             border-radius: 12px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
+
         input,
         select {
             padding: 12px;
@@ -73,10 +84,12 @@
             border-radius: 8px;
             font-size: 16px;
         }
+
         ul {
             list-style: none;
             padding: 0;
         }
+
         li {
             background: white;
             padding: 12px 15px;
@@ -88,14 +101,17 @@
             align-items: center;
             font-size: 16px;
         }
+
         .info {
             font-size: 14px;
             color: #666;
         }
+
         .actions {
             display: flex;
             gap: 6px;
         }
+
         .edit-mode {
             background: #fff8e1;
             padding: 15px;
@@ -103,6 +119,7 @@
             margin: 10px 0;
             border: 1px solid #ffd600;
         }
+
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -111,12 +128,14 @@
             background: white;
             display: flex;
             justify-content: space-around;
+            align-items: center;
             padding: 12px 0;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             border-top: 1px solid #ddd;
             height: 60px;
         }
+
         .bottom-nav button {
             background: none;
             border: none;
@@ -127,9 +146,52 @@
             text-align: center;
             line-height: 1.2;
         }
+
         .bottom-nav button.active {
             opacity: 1;
             font-weight: bold;
+        }
+
+        /* Класс для всех кнопок подвала */
+        .bottom-nav .nav-btn {
+            background: none;
+            border: none;
+            color: #007AFF;
+            opacity: 0.7;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .bottom-nav .nav-btn.active {
+            opacity: 1;
+            font-weight: bold;
+        }
+
+        /* Круглая большая кнопка "Добавить" */
+        .bottom-nav .add-btn {
+            width: 56px;
+            height: 56px;
+            background: #007AFF;
+            color: white;
+            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            opacity: 1;
+            z-index: 2000;
+        }
+
+        /* Активная кнопка "Добавить" */
+        .bottom-nav .add-btn.active {
+            opacity: 1;
         }
     </style>
     <!-- Firebase SDK -->
@@ -145,6 +207,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
     <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
     <!-- Экран входа -->
     <section id="auth-screen" style="text-align: center; padding: 40px 20px;">
@@ -379,11 +442,20 @@
         </div>
         <!-- Фиксированный подвал -->
         <nav class="bottom-nav">
-            <button onclick="show('home')" data-nav="home">🏠<br>Главная</button>
-            <button onclick="show('add')" data-nav="add">➕<br>Добавить</button>
-            <button onclick="show('plan')" data-nav="plan">📊<br>План</button>
-            <button onclick="show('list')" data-nav="list">📋<br>История</button>
-            <button onclick="show('analytics')" data-nav="analytics">📈<br>Отчет</button>
+            <!-- Главная -->
+            <button onclick="show('home')" data-nav="home" class="nav-btn">🏠<br>Главная</button>
+
+            <!-- План -->
+            <button onclick="show('plan')" data-nav="plan" class="nav-btn">📊<br>План</button>
+
+            <!-- Круглая большая кнопка "Добавить" -->
+            <button onclick="show('add')" data-nav="add" class="nav-btn add-btn">➕</button>
+
+            <!-- Отчет -->
+            <button onclick="show('analytics')" data-nav="analytics" class="nav-btn">📈<br>Отчет</button>
+
+            <!-- История -->
+            <button onclick="show('list')" data-nav="list" class="nav-btn">📋<br>История</button>
         </nav>
     </div>
     <script>
@@ -1003,4 +1075,5 @@
         });
     </script>
 </body>
+
 </html>
