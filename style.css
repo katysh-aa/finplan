@@ -121,11 +121,11 @@ li {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 12px 0;
+    padding: 15px 0; /* Увеличили отступы сверху/снизу */
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     border-top: 1px solid #ddd;
-    height: 60px;
+    height: 80px; /* Было 60px → стало 70px */
 }
 
 .bottom-nav button {
@@ -166,17 +166,17 @@ li {
 
 /* Круглая большая кнопка "Добавить" */
 .bottom-nav .add-btn {
-    width: 56px;
-    height: 56px;
+    width: 76px;        /* Было 56px → стало 66px */
+    height: 76px;       /* Пропорционально больше */
     background: #007AFF;
     color: white;
     border-radius: 50%;
-    font-size: 24px;
+    font-size: 28px;    /* Крупнее иконка */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: -18px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: -22px;  /* Поднимаем выше, чтобы "выпирала" */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     opacity: 1;
     z-index: 2000;
 }
