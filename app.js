@@ -84,9 +84,14 @@ function loadFromFirebase() {
         snapshot.forEach(doc => {
             transactions.push({ id: doc.id, ...doc.data() });
         });
+        // Обновляем все зависимости
         renderRecentList();
         updateHome();
         updateAnalytics();
+        // Если вкладка "История" открыта — обновляем список
+        if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
+            renderAllList();
+        }
     });
     plansCollection.onSnapshot(snapshot => {
         financialPlans = [];
@@ -183,7 +188,13 @@ document.getElementById('add-form').addEventListener('submit', e => {
         author: form.author.value
     };
     transactionsCollection.add(newTx)
-        .then(() => form.reset())
+        .then(() => {
+            form.reset();
+            // Если открыта вкладка "История" — обновляем
+            if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
+                renderAllList();
+            }
+        })
         .catch(err => alert('Ошибка: ' + err.message));
 });
 // === 12. Редактирование
@@ -213,6 +224,10 @@ document.getElementById('edit-form').addEventListener('submit', e => {
         .then(() => {
             document.getElementById('edit-section').style.display = 'none';
             form.reset();
+            // Обновляем список "История", если открыт
+            if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
+                renderAllList();
+            }
         })
         .catch(err => alert('Ошибка: ' + err.message));
 });
@@ -223,7 +238,16 @@ function cancelEdit() {
 // === 13. Удаление
 function deleteTransaction(id) {
     if (confirm('Удалить операцию?')) {
-        transactionsCollection.doc(id).delete();
+        transactionsCollection.doc(id).delete()
+            .then(() => {
+                // Обновляем список "История", если открыт
+                if (document.getElementById('list') && document.getElementById('list').style.display !== 'none') {
+                    renderAllList();
+                }
+            })
+            .catch(err => {
+                console.error("Ошибка удаления:", err);
+            });
     }
 }
 // === 14. Навигация
