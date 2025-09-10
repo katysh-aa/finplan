@@ -1,4 +1,3 @@
-// === app.js — Исправленная и оптимизированная версия (без избыточной "ленивой перерисовки")
 // === 1. Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCw3MkLyY_3wL5lPFZP3RN3pNNL_5MXfCQ",
@@ -69,8 +68,12 @@ function createTransactionListItem(tx) {
             ${comment}
         </div>
         <div class="actions">
-            <button class="btn small" onclick="startEdit('${tx.id}')">✏️</button>
-            <button class="btn small danger" onclick="deleteTransaction('${tx.id}')">🗑️</button>
+            <button class="btn small" onclick="startEdit('${tx.id}')">
+                <img src="edit.png" alt="Редактировать" class="action-icon">
+            </button>
+            <button class="btn small danger" onclick="deleteTransaction('${tx.id}')">
+                <img src="delete.png" alt="Удалить" class="action-icon">
+            </button>
         </div>
     `;
     return li;
@@ -112,26 +115,21 @@ function saveGoal() {
             alert("Не удалось сохранить цель.");
         });
 }
-// === 8. Загрузка данных (Ключевое исправление: show('home') вызывается внутри)
+// === 8. Загрузка данных
 function loadFromFirebase() {
     showLoadingIndicator(true);
     let isFirstLoad = true; // Флаг для первого запуска
-
     transactionsCollection.orderBy('date', 'desc').onSnapshot(snapshot => {
         transactions = [];
         snapshot.forEach(doc => {
             transactions.push({ id: doc.id, ...doc.data() });
         });
-
         // Рендерим всё, что нужно
         renderRecentList();
         updateHome();
         updateAnalytics();
         updateDollarSavings();
         updateDropdowns();
-
-        // --- Ключевое исправление ---
-        // Вызываем show('home') ТОЛЬКО после первой загрузки данных
         if (isFirstLoad) {
             isFirstLoad = false;
             // Устанавливаем дату в форме
@@ -148,7 +146,6 @@ function loadFromFirebase() {
         alert("Ошибка загрузки данных. Проверьте подключение к интернету.");
         showLoadingIndicator(false);
     });
-
     plansCollection.onSnapshot(snapshot => {
         financialPlans = [];
         snapshot.forEach(doc => {
@@ -165,7 +162,6 @@ function updateDropdowns() {
     const regularTransactions = transactions.filter(t => !t.isDollarSavings);
     const categories = [...new Set(regularTransactions.map(t => t.category))].sort();
     const authors = [...new Set(regularTransactions.map(t => t.author))].sort();
-
     const updateSelect = (selectId, values) => {
         const select = document.getElementById(selectId);
         if (!select) return;
@@ -176,7 +172,6 @@ function updateDropdowns() {
             select.appendChild(option);
         });
     };
-
     updateSelect('categories', categories);
     updateSelect('edit-categories', categories);
     updateSelect('authors', authors);
@@ -187,7 +182,6 @@ function updateHome() {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const regularTransactions = transactions.filter(t => !t.isDollarSavings);
-
     const monthIncome = regularTransactions
         .filter(t => t.type === 'income' && t.date.startsWith(currentMonth))
         .reduce((sum, t) => sum + t.amount, 0);
@@ -199,7 +193,6 @@ function updateHome() {
         .reduce((sum, t) => sum + t.amount, 0) - regularTransactions
             .filter(t => t.type === 'expense')
             .reduce((sum, t) => sum + t.amount, 0);
-
     let totalDollarInRub = 0;
     getUsdRate()
         .then(usdRate => {
@@ -208,7 +201,6 @@ function updateHome() {
                 return t.type === 'income' ? sum + t.amount : sum - t.amount;
             }, 0);
             totalDollarInRub = totalDollarAmount * usdRate;
-
             const totalAllSavings = totalRubleSavings + totalDollarInRub;
             if (document.getElementById('total-savings')) {
                 document.getElementById('total-savings').textContent = formatNumber(totalAllSavings) + ' ₽';
@@ -232,7 +224,6 @@ function updateHome() {
                 document.getElementById('ruble-progress-text').textContent = `${Math.round(rubleProgress)}% от цели`;
             }
         });
-
     if (document.getElementById('monthly-income')) {
         document.getElementById('monthly-income').textContent = formatNumber(monthIncome) + ' ₽';
     }
@@ -249,7 +240,6 @@ function updateDollarSavings() {
                 return t.type === 'income' ? sum + t.amount : sum - t.amount;
             }, 0);
             const totalRubAmount = totalDollarAmount * usdRate;
-
             if (document.getElementById('dollar-savings-amount')) {
                 document.getElementById('dollar-savings-amount').textContent = formatNumber(totalDollarAmount) + ' $';
             }
@@ -266,7 +256,6 @@ function updateDollarSavings() {
             const totalDollarAmount = dollarTransactions.reduce((sum, t) => {
                 return t.type === 'income' ? sum + t.amount : sum - t.amount;
             }, 0);
-
             if (document.getElementById('dollar-savings-amount')) {
                 document.getElementById('dollar-savings-amount').textContent = formatNumber(totalDollarAmount) + ' $';
             }
@@ -282,15 +271,12 @@ function updateDollarSavings() {
 function renderRecentList() {
     const list = document.getElementById('recent-transactions');
     if (!list) return;
-
     if (!transactions || !Array.isArray(transactions)) {
         list.innerHTML = '<li style="color: #999;">Загрузка...</li>';
         return;
     }
-
     list.innerHTML = '';
     const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
-
     if (recent.length === 0) {
         const li = document.createElement('li');
         li.textContent = 'Нет операций';
@@ -298,7 +284,6 @@ function renderRecentList() {
         list.appendChild(li);
         return;
     }
-
     recent.forEach(tx => {
         list.appendChild(createTransactionListItem(tx));
     });
@@ -436,8 +421,12 @@ function renderPlanList() {
                 <div class="info">Доход: ${formatNumber(plan.income)} ₽ · Расход: ${formatNumber(plan.expense)} ₽</div>
             </div>
             <div class="actions">
-                <button class="btn small" onclick="startEditPlan('${plan.id}')">✏️</button>
-                <button class="btn small danger" onclick="deletePlan('${plan.id}')">🗑️</button>
+                <button class="btn small" onclick="startEditPlan('${plan.id}')">
+                    <img src="edit.png" alt="Редактировать" class="action-icon">
+                </button>
+                <button class="btn small danger" onclick="deletePlan('${plan.id}')">
+                    <img src="delete.png" alt="Удалить" class="action-icon">
+                </button>
             </div>
         `;
         list.appendChild(li);
@@ -560,7 +549,6 @@ function updateAnalytics() {
     const income = regularTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const expense = regularTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     const savings = income - expense;
-
     if (document.getElementById('analytics-income')) {
         document.getElementById('analytics-income').textContent = formatNumber(income) + ' ₽';
     }
@@ -570,7 +558,6 @@ function updateAnalytics() {
     if (document.getElementById('analytics-savings')) {
         document.getElementById('analytics-savings').textContent = formatNumber(savings) + ' ₽';
     }
-
     const expensesByCategory = {};
     regularTransactions.filter(t => t.type === 'expense').forEach(t => {
         expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
@@ -585,7 +572,6 @@ function updateAnalytics() {
             topList.appendChild(li);
         });
     }
-
     updateMonthlyPlan();
     initBI();
 }
@@ -602,7 +588,6 @@ function updateMonthlyPlan() {
     const actualExpense = regularTransactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)).reduce((sum, t) => sum + t.amount, 0);
     const plannedIncome = plan ? plan.income : 0;
     const plannedExpense = plan ? plan.expense : 0;
-
     if (document.getElementById('plan-income-value')) {
         document.getElementById('plan-income-value').textContent = `${formatNumber(plannedIncome)} ₽`;
     }
@@ -612,7 +597,6 @@ function updateMonthlyPlan() {
     if (document.getElementById('progress-income-bar')) {
         document.getElementById('progress-income-bar').style.width = plannedIncome > 0 ? Math.min(100, (actualIncome / plannedIncome) * 100) + '%' : '0%';
     }
-
     if (document.getElementById('plan-expense-value')) {
         document.getElementById('plan-expense-value').textContent = `${formatNumber(plannedExpense)} ₽`;
     }
@@ -622,7 +606,6 @@ function updateMonthlyPlan() {
     if (document.getElementById('progress-expense-bar')) {
         document.getElementById('progress-expense-bar').style.width = plannedExpense > 0 ? Math.min(100, (actualExpense / plannedExpense) * 100) + '%' : '0%';
     }
-
     const monthlySavings = actualIncome - actualExpense;
     if (document.getElementById('monthly-savings')) {
         document.getElementById('monthly-savings').textContent = formatShort(monthlySavings);
@@ -701,7 +684,6 @@ function updateExpensePieChart(transactions) {
     });
     const categories = Object.keys(expensesByCategory);
     const values = Object.values(expensesByCategory);
-
     if (expensePieChart) {
         expensePieChart.data.labels = categories;
         expensePieChart.data.datasets[0].data = values;
@@ -732,7 +714,6 @@ function updateSavingsWeeklyChart(weeklyData) {
     if (!ctx) return;
     const weekLabels = weeklyData.map(w => w.week === '0' ? 'Начало' : w.week.toString());
     const weekSavings = weeklyData.map(w => w.savings);
-
     if (savingsWeeklyChart) {
         savingsWeeklyChart.data.labels = weekLabels;
         savingsWeeklyChart.data.datasets[0].data = weekSavings;
@@ -786,9 +767,8 @@ auth.onAuthStateChanged(user => {
         console.log('Пользователь авторизован:', user.email);
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app').style.display = 'block';
-        loadFromFirebase(); // <-- Загрузка данных начинается здесь
+        loadFromFirebase();
         loadGoalFromFirebase();
-        // show('home') БОЛЬШЕ НЕ ВЫЗЫВАЕТСЯ ЗДЕСЬ!
     } else {
         console.log('Пользователь не авторизован');
         document.getElementById('app').style.display = 'none';
@@ -830,11 +810,9 @@ function show(sectionId) {
     document.querySelectorAll('section').forEach(s => s.style.display = 'none');
     const section = document.getElementById(sectionId);
     if (section) section.style.display = 'block';
-
     document.querySelectorAll('.bottom-nav button').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.querySelector(`.bottom-nav button[onclick="show('${sectionId}')"]`);
     if (activeBtn) activeBtn.classList.add('active');
-
     if (sectionId === 'list') {
         renderAllList();
     } else if (sectionId === 'add') {
@@ -890,23 +868,18 @@ document.body.addEventListener('touchend', () => {
 function renderAllList() {
     const list = document.getElementById('all-transactions');
     if (!list) return;
-
     if (!transactions || !Array.isArray(transactions)) {
         list.innerHTML = '<li style="color: #999;">Загрузка данных...</li>';
         return;
     }
-
     list.innerHTML = '';
     const start = document.getElementById('filter-start')?.value;
     const end = document.getElementById('filter-end')?.value;
-
     if (start) localStorage.setItem('filter-start', start);
     if (end) localStorage.setItem('filter-end', end);
-
     let filtered = transactions;
     if (start) filtered = filtered.filter(t => t.date >= start);
     if (end) filtered = filtered.filter(t => t.date <= end);
-
     if (filtered.length === 0) {
         const li = document.createElement('li');
         li.textContent = 'Нет операций за выбранный период';
@@ -914,7 +887,6 @@ function renderAllList() {
         list.appendChild(li);
         return;
     }
-
     const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
     sorted.forEach(tx => {
         list.appendChild(createTransactionListItem(tx));
