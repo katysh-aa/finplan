@@ -67,7 +67,6 @@
                     <p class="value" id="monthly-expense">0 ₽</p>
                 </div>
             </div>
-
             <!-- Блок: Долларовые накопления -->
             <h2>Долларовые накопления</h2>
             <div class="stats-grid">
@@ -98,7 +97,15 @@
                 <input list="authors" id="author" placeholder="Автор" required />
                 <datalist id="authors"></datalist>
                 <input type="text" id="comment" placeholder="Комментарий (необязательно)" />
-                <label class="dollar-checkbox-label"><input type="checkbox" id="dollar-savings" class="dollar-checkbox" />$</label>
+                <div class="toggle-container">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="dollar-savings" class="toggle-input" />
+                        <label for="dollar-savings" class="toggle-label">
+                            <span class="toggle-button"></span>
+                        </label>
+                    </div>
+                    <span class="toggle-text">Доллары</span>
+                </div>
                 <button type="submit" class="btn">Добавить</button>
             </form>
             <form id="edit-form" style="display: none;">
@@ -114,10 +121,15 @@
                 <input list="edit-authors" id="edit-author" placeholder="Автор" required />
                 <datalist id="edit-authors"></datalist>
                 <input type="text" id="edit-comment" placeholder="Комментарий" />
-                <label class="dollar-checkbox-label">
-                    <input type="checkbox" id="edit-dollar-savings" class="dollar-checkbox" />
-                    Это долларовые накопления
-                </label>
+                <div class="toggle-container">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="edit-dollar-savings" class="toggle-input" />
+                        <label for="edit-dollar-savings" class="toggle-label">
+                            <span class="toggle-button"></span>
+                        </label>
+                    </div>
+                    <span class="toggle-text">Доллары</span>
+                </div>
                 <button type="submit" class="btn">Сохранить</button>
                 <button type="button" onclick="cancelEdit()" class="btn secondary">Отмена</button>
             </form>
