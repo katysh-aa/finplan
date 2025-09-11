@@ -20,6 +20,7 @@ body.dark-theme {
     background: #000000;
     color: #ffffff;
 }
+
 /* === Шапка === */
 .app-header {
     position: fixed;
@@ -39,11 +40,13 @@ body.dark-theme {
     margin: 0 auto;
     height: 64px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: max(16px, env(safe-area-inset-top)); /* ✅ Добавлено: адаптация под notch */
 }
 body.dark-theme .app-header {
     background: rgba(28, 28, 30, 0.8); /* Полупрозрачный темный */
     border-bottom-color: rgba(255, 255, 255, 0.1);
 }
+
 .app-header h1 {
     margin: 0;
     font-size: 17px;
@@ -52,15 +55,18 @@ body.dark-theme .app-header {
     text-align: center;
     flex: 1;
     letter-spacing: -0.02em;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; /* ✅ Добавлено: SF Pro Display */
 }
 body.dark-theme .app-header h1 {
     color: #ffffff;
 }
+
 .header-icon {
     width: 24px;
     height: 24px;
     transition: transform 0.2s ease;
 }
+
 .app-header .btn {
     background: none;
     border: none;
@@ -73,39 +79,47 @@ body.dark-theme .app-header h1 {
     border-radius: 8px;
     transition: background-color 0.3s ease;
 }
+
 .app-header .btn:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 body.dark-theme .app-header .btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
 /* === Основное содержимое === */
 #app {
     padding-top: 70px;
 }
+
 /* Заголовки секций */
+h2, h3 {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; /* ✅ Добавлено: SF Pro Display */
+    letter-spacing: -0.02em;
+}
+
 h2 {
     font-size: 22px;
     font-weight: 600;
     color: #1d1d1f;
     margin: 24px 0 16px;
     padding: 0 16px;
-    letter-spacing: -0.02em;
 }
 body.dark-theme h2 {
     color: #ffffff;
 }
+
 h3 {
     font-size: 17px;
     font-weight: 500;
     color: #1d1d1f;
     margin: 20px 0 12px;
     padding: 0 16px;
-    letter-spacing: -0.02em;
 }
 body.dark-theme h3 {
     color: #ffffff;
 }
+
 /* === Кнопки в стиле iOS === */
 .btn {
     background: #007AFF;
@@ -163,6 +177,7 @@ body.dark-theme .btn.secondary {
     background: #636366;
     box-shadow: 0 1px 3px rgba(99, 99, 102, 0.4);
 }
+
 /* === Формы === */
 form {
     display: grid;
@@ -172,6 +187,7 @@ form {
     margin: 0;
     border: none;
 }
+
 input,
 select {
     padding: 14px 16px;
@@ -183,6 +199,7 @@ select {
     background: rgba(255, 255, 255, 0.9);
     color: #1d1d1f;
     font-family: inherit;
+    font-variant-numeric: tabular-nums; /* ✅ Добавлено: выравнивание цифр */
 }
 input:focus,
 select:focus {
@@ -195,18 +212,21 @@ body.dark-theme select {
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
     border-color: rgba(255, 255, 255, 0.2);
+    font-variant-numeric: tabular-nums; /* ✅ Добавлено: выравнивание цифр */
 }
 body.dark-theme input:focus,
 body.dark-theme select:focus {
     border-color: #0a84ff;
     box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
 }
+
 /* === Списки === */
 ul {
     list-style: none;
     padding: 0;
     margin: 0 16px;
 }
+
 li {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
@@ -220,31 +240,36 @@ li {
     font-size: 17px;
     transition: all 0.2s ease;
     border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03); /* ✅ Добавлено: тень для глубины */
 }
 li:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* ✅ Усилена тень при наведении */
 }
 body.dark-theme li {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 body.dark-theme li:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+
 .info {
     font-size: 15px;
     color: #86868b; /* Серый цвет Apple */
     font-weight: 400;
+    font-variant-numeric: tabular-nums; /* ✅ Добавлено: выравнивание цифр */
 }
 body.dark-theme .info {
     color: #8e8e93;
 }
+
 .actions {
     display: flex;
     gap: 8px;
 }
+
 /* Стили для иконок действий */
 .actions button {
     width: 36px;
@@ -266,6 +291,7 @@ body.dark-theme .info {
 body.dark-theme .actions button:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
 .action-icon {
     width: 18px;
     height: 18px;
@@ -275,6 +301,7 @@ body.dark-theme .actions button:hover {
 body.dark-theme .action-icon {
     filter: brightness(0) invert(0.8); /* Более яркий для темной темы */
 }
+
 /* === Навигация === */
 .bottom-nav {
     position: fixed;
@@ -294,11 +321,13 @@ body.dark-theme .action-icon {
     transition: background-color 0.3s ease;
     max-width: 600px;
     margin: 0 auto;
+    padding-bottom: max(8px, env(safe-area-inset-bottom)); /* ✅ Добавлено: адаптация под notch */
 }
 body.dark-theme .bottom-nav {
     background: rgba(28, 28, 30, 0.8);
     border-top-color: rgba(255, 255, 255, 0.1);
 }
+
 .nav-btn {
     background: none;
     border: none;
@@ -328,40 +357,57 @@ body.dark-theme .nav-btn:hover,
 body.dark-theme .nav-btn.active {
     color: #0a84ff;
 }
+
 .nav-icon {
     width: 24px;
     height: 24px;
     transition: filter 0.3s ease;
 }
+
 /* === Иконки навигации в темной теме === */
 body.dark-theme .nav-icon {
     filter: brightness(0) invert(1);
     opacity: 0.85;
 }
+
 /* === Карточки статистики === */
-.card {
+.card,
+.stat-card,
+.chart-container,
+.goal-section {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 20px;
     border-radius: 16px;
-    margin: 20px 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* ✅ Добавлено: тень */
+    border: 1px solid rgba(0, 0, 0, 0.05); /* ✅ Добавлено: граница */
     transition: all 0.2s ease;
 }
-.card:hover {
+.card:hover,
+.stat-card:hover,
+.chart-container:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
-body.dark-theme .card {
+body.dark-theme .card,
+body.dark-theme .stat-card,
+body.dark-theme .chart-container,
+body.dark-theme .goal-section {
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-color: rgba(255, 255, 255, 0.1);
 }
-body.dark-theme .card:hover {
+body.dark-theme .card:hover,
+body.dark-theme .stat-card:hover,
+body.dark-theme .chart-container:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+.card {
+    padding: 20px;
+    margin: 20px 16px;
+}
+
 /* Сетка статистики */
 .stats-grid {
     display: grid;
@@ -378,20 +424,10 @@ body.dark-theme .card:hover {
         grid-column: span 2;
     }
 }
+
 .stat-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     padding: 24px;
-    border-radius: 16px;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-}
-.stat-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 .stat-card.main-card {
     background: linear-gradient(135deg, #007AFF, #0056b3);
@@ -400,34 +436,32 @@ body.dark-theme .card:hover {
     box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
     border: none;
 }
-body.dark-theme .stat-card {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-}
 body.dark-theme .stat-card.main-card {
     background: linear-gradient(135deg, #0a84ff, #0071e3);
     box-shadow: 0 4px 16px rgba(10, 132, 255, 0.3);
 }
+
 .stat-card h3 {
     margin: 0 0 12px 0;
     font-size: 16px;
     font-weight: 600;
-    letter-spacing: -0.02em;
 }
 .stat-card.main-card h3 {
     color: white;
     font-size: 18px;
 }
+
 .value {
     font-size: 28px;
     font-weight: 700;
     margin: 8px 0;
     letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; /* ✅ Добавлено: выравнивание цифр */
 }
 .stat-card.main-card .value {
     font-size: 36px;
 }
+
 /* Цветные карточки */
 .stat-card.ruble-savings-card {
     background: #e32636;
@@ -451,6 +485,7 @@ body.dark-theme .stat-card.dollar-card {
     color: white;
     box-shadow: 0 4px 16px rgba(133, 187, 101, 0.3);
 }
+
 /* Прогресс-бары */
 .inner-progress-bar {
     height: 6px;
@@ -464,8 +499,9 @@ body.dark-theme .stat-card.dollar-card {
     width: 0%;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 3px;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ✅ Улучшено: плавная анимация */
 }
+
 .progress-bar {
     height: 6px;
     background: rgba(0, 0, 0, 0.1);
@@ -478,7 +514,7 @@ body.dark-theme .stat-card.dollar-card {
     width: 0%;
     background: #007AFF;
     border-radius: 3px;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ✅ Улучшено: плавная анимация */
 }
 body.dark-theme .progress-bar {
     background: rgba(255, 255, 255, 0.2);
@@ -486,21 +522,14 @@ body.dark-theme .progress-bar {
 body.dark-theme .progress-fill {
     background: #0a84ff;
 }
+
 /* Секция цели */
 .goal-section {
     padding: 20px 16px;
     text-align: center;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 16px;
     margin: 0 16px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
 }
-body.dark-theme .goal-section {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-}
+
 .goal-section label {
     display: block;
     margin-bottom: 12px;
@@ -511,6 +540,7 @@ body.dark-theme .goal-section {
 body.dark-theme .goal-section label {
     color: #ffffff;
 }
+
 .input-group {
     display: flex;
     gap: 12px;
@@ -522,24 +552,16 @@ body.dark-theme .goal-section label {
     flex: 1;
     min-width: 150px;
     max-width: 200px;
+    font-variant-numeric: tabular-nums; /* ✅ Добавлено: выравнивание цифр */
 }
+
 /* Графики */
 .chart-container {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     padding: 20px;
-    border-radius: 16px;
     margin: 20px 16px;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.05);
 }
-body.dark-theme .chart-container {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-}
+
 /* Индикатор обновления */
 .refresh-indicator {
     position: fixed;
@@ -562,6 +584,7 @@ body.dark-theme .chart-container {
 body.dark-theme .refresh-indicator {
     background: #0a84ff;
 }
+
 /* Экран авторизации */
 .auth-screen {
     text-align: center;
@@ -576,6 +599,7 @@ body.dark-theme .refresh-indicator {
 body.dark-theme .auth-screen {
     background: #000000;
 }
+
 .auth-screen h2 {
     margin-bottom: 24px;
     color: #000000;
@@ -583,10 +607,12 @@ body.dark-theme .auth-screen {
     font-size: 24px;
     font-weight: 600;
     letter-spacing: -0.02em;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; /* ✅ Добавлено: SF Pro Display */
 }
 body.dark-theme .auth-screen h2 {
     color: #ffffff;
 }
+
 .auth-screen input {
     width: 100%;
     max-width: 320px;
@@ -598,6 +624,7 @@ body.dark-theme .auth-screen h2 {
     background: rgba(255, 255, 255, 0.9);
     color: #1d1d1f;
     font-family: inherit;
+    font-variant-numeric: tabular-nums; /* ✅ Добавлено: выравнивание цифр */
 }
 .auth-screen input:focus {
     outline: none;
@@ -613,16 +640,19 @@ body.dark-theme .auth-screen input:focus {
     border-color: #0a84ff;
     box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
 }
+
 .auth-screen button {
     margin-top: 20px;
     width: 100%;
     max-width: 320px;
 }
+
 #auth-error {
     margin-top: 16px;
     font-size: 15px;
     color: #ff3b30;
 }
+
 /* Адаптивность */
 @media (max-width: 480px) {
     body {
@@ -723,8 +753,8 @@ body.dark-theme .auth-screen input:focus {
     font-size: 17px;
     color: #1d1d1f;
     font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; /* ✅ Добавлено: SF Pro Display */
 }
-
 body.dark-theme .toggle-text {
     color: #ffffff;
 }
@@ -733,7 +763,15 @@ body.dark-theme .toggle-text {
 body.dark-theme .toggle-button {
     background-color: #3a3a3c;
 }
-
 body.dark-theme .toggle-input:checked + .toggle-label .toggle-button {
     background-color: #30d158; /* Зеленый цвет iOS в темной теме */
+}
+
+/* ✅ Добавлено: Плавное появление/исчезание секций */
+section {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+section[style*="display: block"] {
+    opacity: 1;
 }
