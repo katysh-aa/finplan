@@ -86,10 +86,10 @@ function createTransactionListItem(tx) {
         </div>
         <div class="actions">
             <button class="btn small" onclick="startEdit('${tx.id}')">
-                <img src="edit.png" alt="Редактировать" class="action-icon">
+                <img src="icons/edit.png" alt="Редактировать" class="action-icon">
             </button>
             <button class="btn small danger" onclick="deleteTransaction('${tx.id}')">
-                <img src="delete.png" alt="Удалить" class="action-icon">
+                <img src="icons/delete.png" alt="Удалить" class="action-icon">
             </button>
         </div>
     `;
@@ -459,10 +459,10 @@ function renderPlanList() {
             </div>
             <div class="actions">
                 <button class="btn small" onclick="startEditPlan('${plan.id}')">
-                    <img src="edit.png" alt="Редактировать" class="action-icon">
+                    <img src="icons/edit.png" alt="Редактировать" class="action-icon">
                 </button>
                 <button class="btn small danger" onclick="deletePlan('${plan.id}')">
-                    <img src="delete.png" alt="Удалить" class="action-icon">
+                    <img src="icons/delete.png" alt="Удалить" class="action-icon">
                 </button>
             </div>
         `;
